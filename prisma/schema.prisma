@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Khai báo Enums
+enum RoleEnum {
+  ADMIN
+  CUSTOMER
+}
+
+enum StatusEnum {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Thực thể User
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  role      RoleEnum   @default(CUSTOMER)
+  
+  feedbacks Feedback[] 
+}
+
+// Thực thể Feedback
+model Feedback {
+  id        Int        @id @default(autoincrement())
+  rating    Int
+  content   String     @db.Text
+  status    StatusEnum @default(PENDING)
+  isDeleted Boolean    @default(false)
+  deletedAt DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id])
+}
