@@ -138,8 +138,12 @@ block content
         article(class="group relative pb-12 border-b border-slate-50 last:border-0")
           div(class="flex items-start gap-6")
             //- Avatar User
-            div(class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border-4 border-white shadow-sm flex-shrink-0 uppercase")
-              | #{index === 0 ? 'N' : 'A'}
+            if fb.user && fb.user.avatar
+              div(class="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-sm flex-shrink-0")
+                img(src=fb.user.avatar alt="Reviewer Avatar" class="w-full h-full object-cover")
+            else
+              div(class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border-4 border-white shadow-sm flex-shrink-0 uppercase")
+                | #{fb.user ? fb.user.name.charAt(0) : (index === 0 ? 'N' : 'A')}
             
             div(class="flex-1")
               div(class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2")

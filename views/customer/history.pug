@@ -18,8 +18,11 @@ html(lang="vi")
         //- Thông tin người dùng
         .user-stats-card(class="bg-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-center mb-8 shadow-sm border border-slate-100")
           .user-info(class="flex items-center gap-5 mb-6 md:mb-0")
-            img.user-avatar-large(src="https://i.pravatar.cc/150?img=11" alt="Nguyễn Việt Hiếu" class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50")
-            h2.user-name(class="text-xl font-bold text-slate-800") Nguyễn Việt Hiếu
+            if currentUser && currentUser.avatar
+              img.user-avatar-large(src=currentUser.avatar alt=currentUser.name class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50")
+            else
+              div.user-avatar-large(class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold ring-4 ring-blue-50 uppercase") #{currentUser ? currentUser.name.charAt(0) : 'U'}
+            h2.user-name(class="text-xl font-bold text-slate-800") #{currentUser ? currentUser.name : 'Khách hàng'}
           
           .user-metrics(class="flex items-center gap-8 md:gap-12")
             .metric(class="flex flex-col items-center gap-1")
