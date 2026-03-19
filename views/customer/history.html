@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Lịch sử đơn hàng</title>
+</head>
+
+<body class="bg-gray-100">
+    <div class="max-w-4xl mx-auto p-4">
+        <div class="bg-white p-6 rounded-lg shadow-sm mb-6 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center text-xl">👤</div>
+                <div>
+                    <h2 class="text-xl font-bold">Nguyễn Việt Hiếu</h2>
+                    <p class="text-sm text-gray-500">Đơn hàng: 12 | Tích lũy: <span
+                            class="text-blue-600 font-bold">2.4Md</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex space-x-8 border-b mb-6 text-gray-500 overflow-x-auto">
+            <button class="pb-2 border-b-2 border-blue-600 text-blue-600 font-medium">Tất cả</button>
+            <button class="pb-2">Đang giao</button>
+            <button class="pb-2">Đã nhận</button>
+            <button class="pb-2">Đã hủy</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border mb-4">
+            <div class="flex justify-between border-b pb-4 mb-4">
+                <span class="text-sm text-gray-400">MÃ ĐƠN: #SVN-8623 | 20/10/2023</span>
+                <span class="text-green-500 font-medium font-bold">● Đã nhận</span>
+            </div>
+            <div class="flex space-x-4">
+                <div class="w-20 h-20 bg-gray-200 rounded-lg"></div>
+                <div class="flex-1">
+                    <h3 class="font-bold">Nhẫn đính hôn Diamond Minimalis</h3>
+                    <p class="text-sm text-gray-400">Phân loại: Vàng 18K - Size 12</p>
+                    <p class="text-blue-600 font-bold mt-2">1.250.000đ <span class="text-gray-400 font-normal">x1</span>
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">Tổng thanh toán</p>
+                    <p class="text-xl font-bold text-blue-700">2.450.000đ</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-4">
+                <button class="px-6 py-2 border rounded-lg hover:bg-gray-50">Mua lại</button>
+                <a href="/order/1/feedback" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 block text-center">Viết đánh giá đơn hàng</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
