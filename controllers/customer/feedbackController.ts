@@ -40,7 +40,8 @@ export async function showFeedbackForm(
   res: Response
 ): Promise<void> {
   try {
-    const feedbackId = parseInt(req.params["id"] ?? "0", 10);
+    const idParam = req.params["id"];
+    const feedbackId = parseInt(String(idParam), 10) || 0;
 
     // TODO: Lấy userId từ session thực tế khi có authentication
     // Tạm thời hardcode userId = 1 để demo
