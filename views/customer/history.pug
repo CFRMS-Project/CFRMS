@@ -1,0 +1,45 @@
+extends ../layouts/customer.pug
+
+block content
+  div(class="bg-gray-100 py-8 min-h-screen")
+    div(class="max-w-4xl mx-auto p-4")
+      
+      //- Thông tin người dùng
+      div(class="bg-white p-6 rounded-lg shadow-sm mb-6 flex items-center justify-between")
+        div(class="flex items-center space-x-4")
+          div(class="w-16 h-16 bg-orange-200 rounded-full flex items-center justify-center text-xl") 👤
+          div
+            h2(class="text-xl font-bold") Nguyễn Việt Hiếu
+            p(class="text-sm text-gray-500")
+              | Đơn hàng: 12 | Tích lũy: 
+              span(class="text-blue-600 font-bold") 2.4Md
+
+      //- Tabs
+      div(class="flex space-x-8 border-b mb-6 text-gray-500 overflow-x-auto hide-scrollbar")
+        button(class="pb-2 border-b-2 border-blue-600 text-blue-600 font-medium whitespace-nowrap") Tất cả
+        button(class="pb-2 whitespace-nowrap") Đang giao
+        button(class="pb-2 whitespace-nowrap") Đã nhận
+        button(class="pb-2 whitespace-nowrap") Đã hủy
+
+      //- Order Item 1
+      div(class="bg-white p-6 rounded-xl shadow-sm border mb-4")
+        div(class="flex justify-between border-b pb-4 mb-4")
+          span(class="text-sm text-gray-400") MÃ ĐƠN: #SVN-8623 | 20/10/2023
+          span(class="text-green-500 font-medium font-bold") ● Đã nhận
+        
+        div(class="flex space-x-4")
+          div(class="w-20 h-20 bg-gray-200 rounded-lg")
+          div(class="flex-1")
+            h3(class="font-bold") Nhẫn đính hôn Diamond Minimalis
+            p(class="text-sm text-gray-400") Phân loại: Vàng 18K - Size 12
+            p(class="text-blue-600 font-bold mt-2")
+              | 1.250.000đ 
+              span(class="text-gray-400 font-normal") x1
+          
+          div(class="text-right")
+            p(class="text-xs text-gray-400") Tổng thanh toán
+            p(class="text-xl font-bold text-blue-700") 2.450.000đ
+            
+        div(class="flex justify-end space-x-3 mt-4")
+          button(class="px-6 py-2 border rounded-lg hover:bg-gray-50") Mua lại
+          a(href="/order/1/feedback" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 block text-center") Viết đánh giá đơn hàng

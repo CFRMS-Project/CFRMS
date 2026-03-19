@@ -1,0 +1,200 @@
+extends ../layouts/customer.pug
+
+block content
+  //- Breadcrumb (Mock)
+  div(class="max-w-7xl mx-auto px-4 py-4 text-xs text-gray-500")
+    | Trang chủ > Trang sức > 
+    span(class="text-gray-900 font-medium") Nhẫn Eternity Vàng Trắng
+
+  //- PHẦN 1: CHI TIẾT SẢN PHẨM (MOCK DATA)
+  div(class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-12")
+    
+    //- Ảnh sản phẩm
+    div
+      div(class="aspect-square bg-gray-100 rounded-3xl overflow-hidden mb-4")
+        img(src="/images/hero-watch.jpg" alt="Nhẫn Eternity Vàng Trắng 18K" class="w-full h-full object-cover")
+      
+      div(class="grid grid-cols-4 gap-4")
+        div(class="aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-pointer border-2 border-black")
+          img(src="/images/hero-watch.jpg" alt="" class="w-full h-full object-cover")
+        div(class="aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-pointer border border-transparent hover:border-gray-300")
+          img(src="/images/cat-watch.jpg" alt="" class="w-full h-full object-cover")
+        div(class="aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-pointer border border-transparent hover:border-gray-300")
+          img(src="/images/cat-bag.jpg" alt="" class="w-full h-full object-cover")
+        div(class="aspect-square bg-gray-200 rounded-2xl flex items-center justify-center cursor-pointer text-gray-500 font-medium border border-transparent hover:border-gray-300")
+          | +2
+
+    //- Thông tin sản phẩm
+    div(class="flex flex-col justify-center")
+      span(class="text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-2") Eternity Collection
+      h1(class="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-4") Nhẫn Eternity Vàng Trắng 18K
+
+      //- Tóm tắt Rating
+      div(class="flex items-center space-x-2 mb-6")
+        div(class="flex text-yellow-400 text-sm")
+          - var ratingInt = Math.round(avgRating || 0)
+          - for (var i = 1; i <= 5; i++)
+            if i <= ratingInt
+              include ../partials/icons/star_filled.pug
+            else
+              include ../partials/icons/star_empty.pug
+        a(href="#reviews-section" class="text-sm text-gray-400 hover:text-blue-600") (#{totalReviews} đánh giá)
+
+      p(class="text-4xl font-light text-gray-900 mb-8") 45.000.000 VNĐ
+
+      p(class="text-gray-500 text-sm leading-relaxed mb-8")
+        | Thiết kế vượt thời gian, tôn vinh vẻ đẹp vĩnh cửu. Nhẫn Eternity được chế tác từ vàng trắng 18k cao cấp kết hợp cùng những viên kim cương tự nhiên tinh khiết, mang lại vẻ sang trọng tuyệt đối cho chủ nhân.
+
+      ul(class="text-sm text-gray-600 space-y-3 mb-8")
+        li(class="flex items-center")
+          span(class="text-yellow-500 mr-2") ♦
+          | Kim cương tự nhiên GIA Certificate
+        li(class="flex items-center")
+          span(class="text-yellow-500 mr-2") ♦
+          | Vàng trắng 18k (750)
+        li(class="flex items-center")
+          span(class="text-yellow-500 mr-2") ♦
+          | Bảo hành trọn đời & Đánh bóng miễn phí
+
+      div(class="flex items-center space-x-4 mb-8")
+        div(class="flex items-center border rounded-full px-4 py-3 bg-gray-50 w-32 justify-between")
+          button(class="text-gray-400 hover:text-black") -
+          span(class="font-medium text-sm") 1
+          button(class="text-gray-400 hover:text-black") +
+
+      div(class="flex space-x-4")
+        button(class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-full transition shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2")
+          span(class="text-xl") 🛒
+          span THÊM VÀO GIỎ HÀNG
+        button(class="flex-1 border-2 border-gray-200 hover:border-black font-bold py-4 rounded-full transition text-gray-900")
+          | MUA NGAY
+
+  //- PHẦN 2: KHU VỰC ĐÁNH GIÁ (DYNAMIC DATA)
+  div#reviews-section(class="max-w-7xl mx-auto px-4 py-16 border-t mt-8")
+    
+    //- Header & Nút
+    div(class="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4")
+      h2(class="text-2xl font-bold text-gray-900") Đánh giá từ khách hàng
+      a(href="/order/1/feedback" class="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-bold shadow-md hover:bg-blue-700 transition flex items-center justify-center w-max")
+        span(class="mr-2") 📝
+        | Viết đánh giá của bạn
+
+    //- Khối Thống kê
+    div(class="flex flex-col md:flex-row gap-12 mb-16")
+      //- Cục trung bình
+      div(class="flex flex-col items-center justify-center bg-gray-50 rounded-3xl p-8 min-w-[200px] border border-gray-100")
+        span(class="text-6xl font-black text-gray-900 mb-2")= avgRating.toFixed(1)
+        div(class="flex text-yellow-400 text-xl mb-2")
+          - var avgInt = Math.round(avgRating || 0)
+          - for (var i = 1; i <= 5; i++)
+            if i <= avgInt
+              include ../partials/icons/star_filled.pug
+            else
+              include ../partials/icons/star_empty.pug
+        span(class="text-xs text-gray-400 font-medium tracking-widest uppercase") #{totalReviews} Reviews
+
+      //- Mức phân bố Progress bar
+      div(class="flex-1 flex flex-col justify-center space-y-3 max-w-md")
+        - for (var i = 5; i >= 1; i--)
+          - var count = ratingDist[i] || 0
+          - var percent = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0
+          div(class="flex items-center text-sm")
+            span(class="w-4 text-gray-500 font-medium")= i
+            span(class="text-yellow-400 mr-4 text-xs") ★
+            div(class="flex-1 rating-bar-bg mr-4")
+              div.rating-bar-fill(style=`width: ${percent}%`)
+            span(class="w-8 text-right text-gray-400 text-xs") #{percent}%
+
+    //- Gallery hình ảnh từ user
+    if allMedia && allMedia.length > 0
+      div(class="mb-12")
+        h3(class="text-xs font-bold text-gray-400 uppercase tracking-widest justify-start flex items-center mb-6")
+          span(class="mr-2 border border-gray-300 w-4 h-4 flex items-center justify-center text-[10px] rounded-sm") 🖼️
+          | Hình ảnh từ khách hàng
+        
+        div(class="flex space-x-4 overflow-x-auto hide-scrollbar pb-4")
+          each media, idx in allMedia.slice(0, 5)
+            div(class="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 rounded-2xl overflow-hidden shadow-sm cursor-pointer hover:opacity-90")
+              img(src=media.url class="w-full h-full object-cover" alt=`Review Image ${idx}`)
+          
+          if allMedia.length > 5
+            div(class="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 bg-gray-50 rounded-2xl flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-100 transition border border-dashed border-gray-300")
+              span(class="text-2xl font-light mb-1") +
+              span(class="text-xs font-medium uppercase text-center px-4")
+                | Xem tất cả
+                br
+                | #{allMedia.length} ảnh
+
+    //- Bộ lọc (Filters)
+    div(class="flex flex-col md:flex-row justify-between items-start md:items-center py-6 border-t border-b mb-10 gap-4")
+      div(class="flex items-center space-x-4 text-sm scroll-x-auto w-full hide-scrollbar overflow-x-auto")
+        span(class="text-gray-400 font-medium whitespace-nowrap hidden sm:inline") Lọc theo:
+        button(class="bg-gray-900 text-white px-5 py-2 rounded-full font-medium whitespace-nowrap") Tất cả
+        button(class="bg-gray-50 text-gray-600 px-5 py-2 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap") Có hình ảnh/video (#{allMedia.length})
+        button(class="bg-gray-50 text-gray-600 px-5 py-2 rounded-full font-medium hover:bg-gray-100 whitespace-nowrap") 5 Sao (#{ratingDist[5] || 0})
+      
+      div(class="flex items-center space-x-3 text-sm flex-shrink-0")
+        span(class="text-gray-400 font-medium uppercase tracking-widest text-[10px]") Sắp xếp:
+        select(class="bg-transparent font-medium border-none outline-none cursor-pointer")
+          option Mới nhất
+          option Cũ nhất
+          option Đánh giá cao
+
+    //- List Review
+    div(class="space-y-12")
+      if feedbacks.length === 0
+        div(class="text-center py-12 text-gray-500") Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên!
+      
+      each fb in feedbacks
+        div(class="border-b border-gray-100 pb-10 last:border-0 last:pb-0 relative")
+          div(class="flex items-start")
+            
+            //- Avatar
+            div(class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold mr-4 flex-shrink-0")
+              | #{fb.isAnonymous ? 'A' : fb.user.name.charAt(0).toUpperCase()}
+            
+            div(class="flex-1")
+              div(class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2")
+                div
+                  h4(class="font-bold text-gray-900")
+                    | #{fb.isAnonymous ? maskName(fb.user.name) : fb.user.name}
+                  p(class="text-xs text-gray-400 mt-0.5") Đã mua hàng tại ShopVN • #{fb.createdAt.toLocaleDateString('vi-VN')}
+                
+                div(class="flex text-yellow-400 text-sm")
+                  - for (var i = 1; i <= 5; i++)
+                    if i <= fb.rating
+                      include ../partials/icons/star_filled.pug
+                    else
+                      include ../partials/icons/star_empty.pug
+              
+              if fb.tags
+                div(class="flex flex-wrap gap-2 mb-3")
+                  each tag in fb.tags.split(',')
+                    span(class="text-[10px] uppercase tracking-wider font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md")= tag.trim()
+
+              p(class="text-gray-700 text-sm leading-relaxed mb-4")= fb.content
+
+              if fb.reviewMedia && fb.reviewMedia.length > 0
+                div(class="flex space-x-3 mb-4 flex-wrap gap-y-3")
+                  each media in fb.reviewMedia
+                    div(class="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 border cursor-pointer hover:opacity-90")
+                      img(src=media.url class="w-full h-full object-cover")
+
+              if fb.reply
+                div(class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mt-4 ml-0 sm:ml-4 relative")
+                  div(class="absolute left-6 -top-2 w-4 h-4 bg-gray-50 border-t border-l border-gray-100 transform rotate-45")
+                  p(class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center")
+                    span(class="text-blue-500 mr-2") ↳
+                    | Phản hồi từ ShopVN Luxury
+                  p(class="text-sm text-gray-600 leading-relaxed")= fb.reply.content
+
+    //- Pagination
+    if feedbacks.length > 0
+      div(class="flex justify-center items-center space-x-2 mt-16 text-gray-500")
+        div(class="pagination-btn") &#8249;
+        div(class="pagination-btn active") 1
+        div(class="pagination-btn") 2
+        div(class="pagination-btn") 3
+        span(class="px-2") ...
+        div(class="pagination-btn") 12
+        div(class="pagination-btn") &#8250;

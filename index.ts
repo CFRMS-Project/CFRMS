@@ -23,8 +23,8 @@ const app = express();
 const PORT = process.env["PORT"] || 3000;
 
 // --- Cấu hình View Engine ---
-// Sử dụng EJS để render các file .ejs trong thư mục views/
-app.set("view engine", "ejs");
+// --- Cài đặt View Engine ---
+app.set("view engine", "pug");
 app.set("views", path.join(process.cwd(), "views"));
 
 // --- Cấu hình Static Files ---
@@ -42,6 +42,8 @@ app.use("/", feedbackRoutes);
 
 // --- Khởi động Server ---
 app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
-  console.log(`📝 Form đánh giá: http://localhost:${PORT}/order/1/feedback`);
+  console.log(`Server đang chạy tại: http://localhost:${PORT}`);
+  console.log(`Form đánh giá: http://localhost:${PORT}/order/1/feedback`);
 });
+
+// Triggering nodemon restart...

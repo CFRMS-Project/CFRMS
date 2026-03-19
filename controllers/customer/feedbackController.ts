@@ -16,9 +16,10 @@
  */
 
 import type { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
+import prisma from "../../utils/db.js";
 
 // -------------------------------------------------------------------
 // Utility: Ẩn tên khách hàng cho đánh giá ẩn danh
@@ -29,6 +30,70 @@ export function maskName(name: string): string {
   const first = name.charAt(0);
   const last = name.charAt(name.length - 1);
   return `${first}${"*".repeat(5)}${last}`;
+}
+
+// -------------------------------------------------------------------
+// GET /product/:id
+// Hiển thị trang chi tiết sản phẩm và danh sách đánh giá
+// -------------------------------------------------------------------
+export async function showProductDetail(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const productId = req.params["id"]; // Dùng để tham khảo nếu có DB Product sau này
+
+    // Lấy toàn bộ danh sách feedback từ DB, bao gồm User, Media, Reply
+    // Sắp xếp mới nhất lên đầu
+    const feedbacks = await prisma.feedback.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: true,
+        reviewMedia: true,
+        reply: {
+          include: { admin: true },
+        },
+      },
+    });
+
+    // Thống kê sao
+    let totalRating = 0;
+    const ratingDist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } as { 1: number; 2: number; 3: number; 4: number; 5: number };
+    
+    // Thu thập tất cả ảnh từ cộng đồng
+    const allMedia: { url: string; type: string; feedbackId: number }[] = [];
+
+    for (const fb of feedbacks) {
+      totalRating += fb.rating;
+      if (fb.rating >= 1 && fb.rating <= 5) {
+        const key = fb.rating as 1 | 2 | 3 | 4 | 5;
+        ratingDist[key]++;
+      }
+      if (fb.reviewMedia && fb.reviewMedia.length > 0) {
+        allMedia.push(...fb.reviewMedia.map(m => ({ url: m.url, type: m.type, feedbackId: fb.id })));
+      }
+    }
+
+    const totalReviews = feedbacks.length;
+    let avgRating = 0;
+    if (totalReviews > 0) {
+      avgRating = Number((totalRating / totalReviews).toFixed(1));
+    }
+
+    // Render EJS
+    res.render("customer/product", {
+      productId,
+      feedbacks,
+      totalReviews,
+      avgRating,
+      ratingDist,
+      allMedia,
+      maskName, // Truyền utility function vào view
+    });
+  } catch (error) {
+    console.error("Lỗi khi hiển thị chi tiết sản phẩm:", error);
+    res.status(500).send("Đã xảy ra lỗi. Vui lòng thử lại.");
+  }
 }
 
 // -------------------------------------------------------------------

@@ -1,0 +1,201 @@
+extends ../layouts/customer.pug
+
+block content
+  div(class="bg-gray-50 flex justify-center items-start min-h-screen py-8")
+    //- Container chính
+    div(class="bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg")
+      
+      //- Header: Nút quay lại + Tiêu đề
+      div(class="flex items-center justify-between mb-6")
+        div(class="flex items-center")
+          a(href="/lich-su" class="text-gray-500 mr-4 hover:text-gray-700 text-xl") ←
+          h2(class="text-xl font-bold text-gray-800") Viết đánh giá
+        span(class="text-xs text-gray-400") ĐƠN HÀNG #SVN-2024
+
+      //- FORM ĐÁNH GIÁ (enctype="multipart/form-data")
+      form#feedbackForm(action="/feedback" method="POST" enctype="multipart/form-data")
+        
+        //- Thông tin sản phẩm
+        div(class="flex items-center space-x-4 bg-gray-50 p-4 rounded-xl mb-6 border")
+          div(class="w-16 h-16 bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center")
+            span(class="text-2xl") 💍
+          div
+            h4(class="font-bold text-gray-800") Nhẫn đính hôn Diamond Minimalis
+            p(class="text-xs text-gray-400") Phân loại: Vàng 18K - Size 12
+
+        //- BỘ CHỌN RATING (Ngôi sao)
+        div(class="text-center mb-6")
+          p(class="font-bold text-lg mb-3 text-gray-800") Bạn thấy sản phẩm này thế nào?
+          
+          input#ratingInput(type="hidden" name="rating" value="0")
+          
+          div#starContainer(class="flex justify-center space-x-2 text-3xl")
+            span.star-btn.inactive(data-value="1") ★
+            span.star-btn.inactive(data-value="2") ★
+            span.star-btn.inactive(data-value="3") ★
+            span.star-btn.inactive(data-value="4") ★
+            span.star-btn.inactive(data-value="5") ★
+            
+          p#ratingLabel(class="text-sm mt-2 font-medium")
+            span(class="text-gray-400") Nhấn để đánh giá
+            
+        //- THẺ ĐÁNH GIÁ NHANH (Tags)
+        div(class="mb-6")
+          p(class="font-medium text-gray-700 mb-3 text-sm") Đánh giá nhanh
+          input#tagsInput(type="hidden" name="tags" value="")
+          
+          div#tagContainer(class="flex flex-wrap gap-2 justify-center")
+            button.tag-btn(type="button" class="px-4 py-1.5 border rounded-full text-sm text-gray-600 hover:border-blue-500" data-tag="Đúng mô tả") Đúng mô tả
+            button.tag-btn(type="button" class="px-4 py-1.5 border rounded-full text-sm text-gray-600 hover:border-blue-500" data-tag="Giao hàng nhanh") Giao hàng nhanh
+            button.tag-btn(type="button" class="px-4 py-1.5 border rounded-full text-sm text-gray-600 hover:border-blue-500" data-tag="Đóng gói kỹ") Đóng gói kỹ
+            button.tag-btn(type="button" class="px-4 py-1.5 border rounded-full text-sm text-gray-600 hover:border-blue-500" data-tag="Chất lượng tuyệt vời") Chất lượng tuyệt vời
+            button.tag-btn(type="button" class="px-4 py-1.5 border rounded-full text-sm text-gray-600 hover:border-blue-500" data-tag="Thái độ tốt") Thái độ tốt
+
+        //- NỘI DUNG ĐÁNH GIÁ
+        div(class="mb-6")
+          p(class="font-medium text-gray-700 mb-2 text-sm") Chia sẻ thêm về trải nghiệm
+          div(class="relative")
+            textarea#contentInput(name="content" class="w-full border rounded-xl p-4 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white resize-none transition" rows="4" maxlength="500" placeholder="Sản phẩm dùng rất tốt, âm thanh trong trẻo...")
+            span#charCount(class="absolute bottom-3 right-3 text-xs text-gray-400") 0/500
+
+        //- TẢI LÊN HÌNH ẢNH
+        div(class="mb-6")
+          p(class="font-medium text-gray-700 mb-2 text-sm") Hình ảnh & Video thực tế
+          
+          //- Preview container
+          div#imagePreview(class="flex flex-wrap gap-3 mb-3")
+          
+          label(class="inline-flex items-center px-4 py-2 border-2 border-dashed border-blue-300 rounded-xl text-sm text-blue-600 cursor-pointer hover:bg-blue-50 transition")
+            span(class="mr-2") 📷
+            | Thêm ảnh/video
+            input#imageInput(type="file" name="images" multiple accept="image/jpeg,image/jpg,image/png" class="hidden")
+          p(class="text-xs text-gray-400 mt-1") Tối đa 5 ảnh, mỗi ảnh ≤ 5MB (jpg, png)
+
+        //- CHẾ ĐỘ ẨN DANH
+        div(class="flex items-center space-x-2 text-sm text-gray-500 mb-6")
+          input#anonCheckbox(type="checkbox" name="isAnonymous" class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500")
+          label(for="anonCheckbox") Gửi đánh giá dưới tên ẩn danh
+
+        //- NÚT GỬI
+        button.submit-btn(type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 flex items-center justify-center space-x-2")
+          span Gửi đánh giá ngay
+          span 📝
+
+      //- Lưu ý chính sách
+      p(class="text-xs text-gray-400 text-center mt-4")
+        | Bằng cách gửi đánh giá, bạn đồng ý với 
+        a(href="#" class="text-blue-500 hover:underline") Chính sách & Điều khoản
+        |  của ShopVN. Đánh giá sẽ được kiểm duyệt trước khi hiển thị.
+
+block scripts
+  script.
+    // === 1. BỘ CHỌN SAO (Star Rating) ===
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('ratingInput');
+    const ratingLabel = document.getElementById('ratingLabel');
+
+    const ratingTexts = {
+      1: { text: 'Tệ', color: 'text-red-500' },
+      2: { text: 'Không hài lòng', color: 'text-orange-500' },
+      3: { text: 'Bình thường', color: 'text-yellow-500' },
+      4: { text: 'Tuyệt vời', color: 'text-blue-500' },
+      5: { text: 'Xuất sắc', color: 'text-green-500' }
+    };
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const value = parseInt(star.dataset.value);
+        ratingInput.value = value;
+
+        stars.forEach(s => {
+          if (parseInt(s.dataset.value) <= value) {
+            s.classList.remove('inactive');
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+            s.classList.add('inactive');
+          }
+        });
+
+        const info = ratingTexts[value];
+        ratingLabel.innerHTML = `<span class="${info.color} font-medium">${info.text}</span>`;
+      });
+    });
+
+    // === 2. THẺ ĐÁNH GIÁ NHANH (Tag Selection) ===
+    const tagButtons = document.querySelectorAll('.tag-btn');
+    const tagsInput = document.getElementById('tagsInput');
+    const selectedTags = new Set();
+
+    tagButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tag = btn.dataset.tag;
+        if (selectedTags.has(tag)) {
+          selectedTags.delete(tag);
+          btn.classList.remove('selected');
+        } else {
+          selectedTags.add(tag);
+          btn.classList.add('selected');
+        }
+        tagsInput.value = Array.from(selectedTags).join(', ');
+      });
+    });
+
+    // === 3. BỘ ĐẾM KÝ TỰ (Character Counter) ===
+    const contentInput = document.getElementById('contentInput');
+    const charCount = document.getElementById('charCount');
+
+    contentInput.addEventListener('input', () => {
+      const len = contentInput.value.length;
+      charCount.textContent = `${len}/500`;
+      if (len >= 450) {
+        charCount.classList.add('text-red-500');
+        charCount.classList.remove('text-gray-400');
+      } else {
+        charCount.classList.remove('text-red-500');
+        charCount.classList.add('text-gray-400');
+      }
+    });
+
+    // === 4. PREVIEW ẢNH (Image Upload Preview) ===
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+
+    imageInput.addEventListener('change', (e) => {
+      imagePreview.innerHTML = '';
+      const files = e.target.files;
+      if (files.length > 5) {
+        alert('Chỉ được upload tối đa 5 ảnh!');
+        imageInput.value = '';
+        return;
+      }
+      Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const div = document.createElement('div');
+          div.className = 'relative image-preview-item mr-2 mb-2';
+          div.innerHTML = `
+            <img src="${ev.target.result}" class="w-20 h-20 object-cover rounded-lg border" alt="Preview ${index + 1}">
+            <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center cursor-pointer hover:bg-red-600" data-index="${index}">×</span>
+          `;
+          imagePreview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // === 5. FORM VALIDATION ===
+    document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+      const rating = parseInt(ratingInput.value);
+      if (!rating || rating < 1) {
+        e.preventDefault();
+        alert('Vui lòng chọn số sao đánh giá!');
+        return;
+      }
+      const content = contentInput.value.trim();
+      if (!content) {
+        e.preventDefault();
+        alert('Vui lòng nhập nội dung đánh giá!');
+        return;
+      }
+    });

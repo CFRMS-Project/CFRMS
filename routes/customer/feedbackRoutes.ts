@@ -18,9 +18,15 @@ import { uploadReviewImages } from "../../middlewares/upload.js";
 import {
   showFeedbackForm,
   submitFeedback,
+  showProductDetail,
 } from "../../controllers/customer/feedbackController.js";
 
 const router = Router();
+
+// --- GET: Hiển thị trang chi tiết sản phẩm ---
+// URL: /product/:id
+// Ví dụ: /product/1 → hiển thị chi tiết sản phẩm giao diện mẫu
+router.get("/product/:id", showProductDetail);
 
 // --- GET: Hiển thị form đánh giá ---
 // URL: /order/:id/feedback

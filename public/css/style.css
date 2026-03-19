@@ -1,0 +1,61 @@
+/* =========================================================
+   CUSTOM STYLES cho Dự án CFRMS
+   Nơi lưu trữ các class tuỳ chỉnh không có sẵn trong TailwindCSS
+   ========================================================= */
+
+/* ----- HIỂN THỊ ICON SAO ĐÁNH GIÁ ----- */
+.star-filled {
+  color: #facc15; /* Tailwind: text-yellow-400 */
+}
+
+.star-empty {
+  color: #d1d5db; /* Tailwind: text-gray-300 */
+}
+
+/* ----- THANH TIẾN TRÌNH RATING (PROGRESS BAR) ----- */
+.rating-bar-bg {
+  background-color: #f3f4f6; /* Tailwind: bg-gray-100 */
+  border-radius: 9999px;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+}
+
+.rating-bar-fill {
+  background-color: #3b82f6; /* Tailwind: bg-blue-500 */
+  height: 100%;
+  border-radius: 9999px;
+}
+
+/* ----- PHÂN TRANG (PAGINATION) ----- */
+.pagination-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn.active {
+  background-color: #111827; /* Tailwind: bg-gray-900 */
+  color: white;
+}
+
+.pagination-btn:not(.active):hover {
+  background-color: #f3f4f6; /* Tailwind: bg-gray-100 */
+}
+
+/* ----- TIỆN ÍCH SCROLLBAR ẨN ----- */
+/* Giấu thanh cuộn ngang/dọc nhưng vẫn cho phép vuốt/scroll */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE và Edge */
+  scrollbar-width: none; /* Firefox */
+}

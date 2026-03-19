@@ -1,0 +1,46 @@
+extends ../layouts/customer.pug
+
+block content
+  //- Hero Section
+  div(class="max-w-7xl mx-auto px-4 mt-6")
+    div(class="relative h-[500px] rounded-[40px] overflow-hidden bg-black flex items-center")
+      img(src="/images/hero-watch.jpg" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="Hero")
+      div(class="relative z-10 px-12 text-white max-w-xl")
+        span(class="bg-blue-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest") ● BST Mới 2024
+        h2(class="text-5xl font-black mt-6 mb-4 leading-tight uppercase") Phong cách mới,
+          br
+          | Khẳng định tôi
+        p(class="text-gray-300 mb-8")
+          | Nâng tầm phong cách cá nhân với bộ sưu tập phụ kiện xa xỉ, từ những chiếc đồng hồ tinh xảo đến trang sức lộng lẫy.
+        div(class="flex space-x-4")
+          button(class="bg-blue-600 px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition") MUA NGAY
+          button(class="bg-white/10 backdrop-blur-md border border-white/20 px-8 py-3 rounded-full font-bold hover:bg-white/20 transition") KHÁM PHÁ BST
+
+  //- Categories Section
+  div(class="max-w-7xl mx-auto px-4 mt-16 mb-20")
+    div(class="flex justify-between items-end mb-8")
+      div
+        h3(class="text-2xl font-bold text-gray-900") Danh Mục Nổi Bật
+        p(class="text-gray-400 text-sm") Khám phá thế giới phụ kiện đẳng cấp
+      a(href="#" class="text-blue-600 text-sm font-bold flex items-center") Xem tất cả →
+    div(class="grid grid-cols-2 md:grid-cols-4 gap-4")
+      //- Category 1
+      div(class="group relative h-64 rounded-2xl overflow-hidden cursor-pointer")
+        img(src="/images/cat-watch.jpg" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Đồng Hồ")
+        div(class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6")
+          span(class="text-white font-bold") Đồng Hồ
+      //- Category 2
+      div(class="group relative h-64 rounded-2xl overflow-hidden cursor-pointer")
+        img(src="/images/cat-bag.jpg" class="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-110" alt="Túi Xách")
+        div(class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6")
+          span(class="text-white font-bold") Túi Xách
+
+  //- Newsletter Section
+  div(class="max-w-5xl mx-auto px-4 mb-20")
+    div(class="bg-blue-50 p-12 rounded-[40px] flex flex-col md:flex-row items-center justify-between border border-blue-100")
+      div
+        h3(class="text-2xl font-bold mb-2") Nhận Tin Ưu Đãi
+        p(class="text-gray-500 text-sm") Đăng ký để nhận thông báo sớm nhất về các bộ sưu tập giới hạn.
+      div(class="mt-6 md:mt-0 flex w-full md:w-auto bg-white p-1.5 rounded-2xl shadow-sm border")
+        input(type="email" placeholder="Địa chỉ email của bạn" class="px-4 py-2 outline-none w-full md:w-64 text-sm")
+        button(class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm") Đăng Ký
