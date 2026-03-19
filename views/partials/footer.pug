@@ -1,51 +1,99 @@
-footer(class="bg-white border-t mt-20 pt-16 pb-8")
-  div(class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12")
-    // Cột 1
-    div
-      div(class="flex items-center space-x-2 mb-6")
-        div(class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs") 💎
-        span(class="font-bold text-xl") SHOPVN
-      p(class="text-gray-500 text-sm leading-relaxed mb-6") Nền tảng mua sắm phụ kiện thời trang xa xỉ hàng đầu Việt Nam. Chúng tôi cam kết mang lại những sản phẩm chính hãng và trải nghiệm mua sắm tuyệt vời nhất.
-      div(class="flex space-x-4")
-        span(class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs") 🌐
-        span(class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs") 🔗
-        span(class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs") 📷
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    script(src="https://cdn.tailwindcss.com")
+    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap", rel="stylesheet")
+    style.
+      body { font-family: 'Inter', sans-serif; }
 
-    // Cột 2
-    div
-      h4(class="font-bold mb-6") Hỗ Trợ Khách Hàng
-      ul(class="text-gray-500 text-sm space-y-4")
-        li: a(href="#") Trung tâm trợ giúp
-        li: a(href="#") Chính sách vận chuyển
-        li: a(href="#") Đổi trả & Hoàn tiền
-        li: a(href="#") Kiểm tra đơn hàng
+  body.bg-slate-50
+    //- Để test giao diện, tôi thêm 1 thẻ main trống
+    main.min-h-screen
 
-    // Cột 3
-    div
-      h4(class="font-bold mb-6") Về Chúng Tôi
-      ul(class="text-gray-500 text-sm space-y-4")
-        li: a(href="#") Câu chuyện thương hiệu
-        li: a(href="#") Tuyển dụng
-        li: a(href="#") Tin tức & Blog
-        li: a(href="#") Hệ thống cửa hàng
+    //- ================= FOOTER =================
+    footer.site-footer(class="bg-white border-t border-slate-100 pt-16 pb-8")
+      .footer-container(class="max-w-7xl mx-auto px-6")
+        
+        //- Phần trên của Footer
+        .footer-top(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16")
+          
+          //- Cột 1: Thông tin thương hiệu
+          .footer-col.brand-col(class="space-y-6")
+            .footer-brand(class="flex items-center gap-3")
+              .brand-icon(class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30")
+                svg(class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                  path(d="M6 3h12l4 6-10 12L2 9l4-6z")
+                  path(d="M2 9h20")
+                  path(d="M12 21V9")
+                  path(d="M18 3l-6 6")
+                  path(d="M6 3l6 6")
+              span.brand-text(class="font-bold text-xl tracking-wider text-slate-800") SHOPVN
+            
+            p(class="text-slate-500 text-sm leading-relaxed max-w-xs") Nền tảng mua sắm phụ kiện thời trang xa xỉ hàng đầu Việt Nam. Chúng tôi cam kết mang lại những sản phẩm chính hãng và trải nghiệm mua sắm tuyệt vời nhất.
+            
+            .social-links(class="flex gap-3")
+              each icon in ['world', 'share', 'video']
+                a(href="#" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300")
+                  if icon == 'world'
+                    svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                      circle(cx="12" cy="12" r="10")
+                      line(x1="2" y1="12" x2="22" y2="12")
+                      path(d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z")
+                  else if icon == 'share'
+                    svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                      circle(cx="18" cy="5" r="3")
+                      circle(cx="6" cy="12" r="3")
+                      circle(cx="18" cy="19" r="3")
+                      line(x1="8.59" y1="13.51" x2="15.42" y2="17.49")
+                      line(x1="15.41" y1="6.51" x2="8.59" y2="10.49")
+                  else
+                    svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                      polygon(points="23 7 16 12 23 17 23 7")
+                      rect(x="1" y="5" width="15" height="14" rx="2" ry="2")
 
-    // Cột 4
-    div
-      h4(class="font-bold mb-6") Liên Hệ
-      ul(class="text-gray-500 text-sm space-y-4")
-        li(class="flex items-start") 📍 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh
-        li 📞 1900 123 456
-        li ✉️ support@shopvn.luxury
-      div(class="mt-8")
-        p(class="text-xs font-bold mb-3 uppercase") Phương thức thanh toán
-        div(class="flex space-x-2")
-          span(class="bg-gray-100 px-3 py-1 rounded text-[10px] font-bold") VISA
-          span(class="bg-gray-100 px-3 py-1 rounded text-[10px] font-bold") MOMO
-          span(class="bg-gray-100 px-3 py-1 rounded text-[10px] font-bold") ZALO
+          //- Cột 2: Hỗ trợ khách hàng
+          .footer-col
+            h4(class="text-sm font-bold text-slate-800 uppercase tracking-widest mb-6") Hỗ Trợ Khách Hàng
+            ul(class="space-y-4")
+              each link in ['Trung tâm trợ giúp', 'Chính sách vận chuyển', 'Đổi trả & Hoàn tiền', 'Hướng dẫn chọn size', 'Kiểm tra đơn hàng']
+                li: a(href="#" class="text-sm text-slate-500 hover:text-blue-600 transition-colors")= link
 
-  // Dấu bản quyền
-  div(class="max-w-7xl mx-auto px-4 border-t mt-16 pt-8 flex flex-col md:flex-row justify-between text-xs text-gray-400")
-    p © 2026 ShopVN Luxury Accessories. All rights reserved.
-    div(class="flex space-x-6 mt-4 md:mt-0")
-      a(href="#") Điều khoản dịch vụ
-      a(href="#") Chính sách bảo mật
+          //- Cột 3: Về chúng tôi
+          .footer-col
+            h4(class="text-sm font-bold text-slate-800 uppercase tracking-widest mb-6") Về Chúng Tôi
+            ul(class="space-y-4")
+              each link in ['Câu chuyện thương hiệu', 'Tuyển dụng', 'Tin tức & Blog', 'Liên hệ hợp tác', 'Hệ thống cửa hàng']
+                li: a(href="#" class="text-sm text-slate-500 hover:text-blue-600 transition-colors")= link
+
+          //- Cột 4: Liên hệ & Thanh toán
+          .footer-col.contact-col
+            h4(class="text-sm font-bold text-slate-800 uppercase tracking-widest mb-6") Liên Hệ
+            ul.contact-list(class="space-y-5 mb-8")
+              li(class="flex items-start gap-3")
+                svg(class="mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                  path(d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z")
+                  circle(cx="12" cy="10" r="3")
+                span(class="text-sm text-slate-500 leading-relaxed") 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh, Việt Nam
+              li(class="flex items-center gap-3")
+                svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                  path(d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z")
+                span(class="text-sm font-semibold text-slate-700") 1900 123 456
+              li(class="flex items-center gap-3")
+                svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+                  path(d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z")
+                  polyline(points="22,6 12,13 2,6")
+                span(class="text-sm text-slate-500 underline decoration-slate-200") support@shopvn.luxury
+
+            h4.payment-title(class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4") Phương thức thanh toán
+            .payment-methods(class="flex gap-2")
+              each badge in ['VISA', 'MOMO', 'ZALO']
+                span.payment-badge(class="bg-slate-100 text-slate-600 text-[10px] font-black px-3 py-1.5 rounded-md border border-slate-200 shadow-sm")= badge
+
+        //- Phần dưới: Copyright & Legal
+        .footer-bottom(class="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6")
+          p(class="text-xs text-slate-400") &copy; 2024 ShopVN Luxury Accessories. All rights reserved.
+          .footer-legal(class="flex gap-8")
+            each item in ['Điều khoản dịch vụ', 'Chính sách bảo mật', 'Cookies']
+              a(href="#" class="text-xs text-slate-400 hover:text-slate-800 transition-colors font-medium")= item

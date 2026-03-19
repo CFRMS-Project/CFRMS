@@ -16,6 +16,8 @@
  */
 
 import type { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 //import { PrismaClient } from "@prisma/client";
 
 //const prisma = new PrismaClient();
@@ -80,8 +82,8 @@ export async function showProductDetail(
       avgRating = Number((totalRating / totalReviews).toFixed(1));
     }
 
-    // Render EJS
-    res.render("customer/product", {
+    // Render Pug
+    res.render("customer/product.pug", {
       productId,
       feedbacks,
       totalReviews,
@@ -133,6 +135,9 @@ export async function showFeedbackForm(
     });
 
     // Render form đánh giá với dữ liệu
+    const viewRoot = req.app.get('views');
+    const viewTest = path.join(String(viewRoot), 'customer', 'feedback.pug');
+    console.log('DEBUG: view root', viewRoot, 'exists', fs.existsSync(viewTest), 'viewTest', viewTest);
     res.render("customer/feedback", {
       user,
       feedbackId,
