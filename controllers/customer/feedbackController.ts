@@ -83,7 +83,7 @@ export async function showProductDetail(
     }
 
     // Render Pug
-    res.render("customer/product.pug", {
+    res.render("customer/product", {
       productId,
       feedbacks,
       totalReviews,

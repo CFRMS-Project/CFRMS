@@ -11,13 +11,15 @@ block content
 
   //- Breadcrumb
   nav(class="max-w-7xl mx-auto px-6 py-6 text-[11px] font-bold uppercase tracking-widest text-slate-400")
-    a(href="/" class="hover:text-blue-600") Trang chủ
+    a(href="/customer/home" class="hover:text-blue-600") Trang chủ
     span(class="mx-3 text-slate-300") /
-    a(href="/category/jewelry" class="hover:text-blue-600") Trang sức
+    a(href="#" class="hover:text-blue-600") Trang sức
     span(class="mx-3 text-slate-300") /
     span(class="text-slate-900") Nhẫn Eternity Vàng Trắng
 
-  //- PHẦN 1: CHI TIẾT SẢN PHẨM
+  //- ═══════════════════════════════════════════════════════
+  //- PHẦN 1: CHI TIẾT SẢN PHẨM (Tĩnh – chỉ có 1 sản phẩm)
+  //- ═══════════════════════════════════════════════════════
   section(class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20")
     //- Cột trái: Gallery Ảnh
     div(class="space-y-6")
@@ -25,7 +27,7 @@ block content
         img(src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80" alt="Main Product" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105")
       
       div(class="grid grid-cols-4 gap-4")
-        each img, index in ["watch-1", "watch-2", "watch-3"]
+        each imgItem, index in ["watch-1", "watch-2", "watch-3"]
           div(class=`aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${index === 0 ? 'border-blue-600' : 'border-transparent hover:border-slate-200'}`)
             img(src=`https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80` class="w-full h-full object-cover")
         div(class="aspect-square bg-slate-900 rounded-2xl flex flex-col items-center justify-center text-white cursor-pointer hover:bg-slate-800 transition-colors")
@@ -38,12 +40,22 @@ block content
         span(class="inline-block text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4 bg-blue-50 px-3 py-1 rounded") Eternity Collection
         h1(class="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight") Nhẫn Eternity Vàng Trắng 18K
         
+        //- Sao trung bình & Số đánh giá (DYNAMIC)
         div(class="flex items-center gap-4 mb-8")
           div(class="flex text-amber-400 items-center")
+            - var fullStars = Math.floor(avgRating || 0)
+            - var hasHalf = (avgRating || 0) - fullStars >= 0.5
             each i in [1, 2, 3, 4, 5]
-              svg(class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20")
-                path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
-          a(href="#reviews-section" class="text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors tracking-widest uppercase underline underline-offset-4") (128 đánh giá)
+              if i <= fullStars
+                svg(class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20")
+                  path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
+              else if i === fullStars + 1 && hasHalf
+                svg(class="w-4 h-4 text-amber-300" fill="currentColor" viewBox="0 0 20 20")
+                  path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
+              else
+                svg(class="w-4 h-4 text-slate-200" fill="currentColor" viewBox="0 0 20 20")
+                  path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
+          a(href="#reviews-section" class="text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors tracking-widest uppercase underline underline-offset-4") (#{totalReviews || 0} đánh giá)
 
       div(class="mb-10")
         p(class="text-4xl font-light text-slate-900 mb-2") 45.000.000 VNĐ
@@ -68,7 +80,9 @@ block content
           span THÊM VÀO GIỎ HÀNG
         button(class="flex-1 border-2 border-slate-200 hover:border-slate-900 text-slate-900 font-black py-5 rounded-full transition-all active:scale-[0.98]") MUA NGAY
 
-  //- PHẦN 2: KHU VỰC ĐÁNH GIÁ
+  //- ═══════════════════════════════════════════════════════
+  //- PHẦN 2: KHU VỰC ĐÁNH GIÁ (DYNAMIC từ DB)
+  //- ═══════════════════════════════════════════════════════
   section#reviews-section(class="max-w-7xl mx-auto px-6 py-24 border-t border-slate-100")
     div(class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6")
       div
@@ -80,50 +94,67 @@ block content
           path(d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z")
         | Viết đánh giá của bạn
 
-    //- Khối Thống kê Rating
+    //- ─── Khối Thống kê Rating (DYNAMIC) ───
     div(class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20 bg-slate-50 rounded-[3rem] p-10 border border-slate-100")
       div(class="flex flex-col items-center justify-center text-center lg:border-r border-slate-200")
-        span(class="text-7xl font-black text-slate-900 mb-4 tracking-tighter") 4.9
+        span(class="text-7xl font-black text-slate-900 mb-4 tracking-tighter") #{avgRating || 0}
         div(class="flex text-amber-400 mb-4 scale-125")
+          - var fullStarsOverview = Math.floor(avgRating || 0)
           each i in [1, 2, 3, 4, 5]
-            svg(class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20")
-              path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
-        span(class="text-[10px] text-slate-400 font-black tracking-[0.3em] uppercase") 128 Reviews
+            if i <= fullStarsOverview
+              svg(class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20")
+                path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
+            else
+              svg(class="w-5 h-5 text-slate-200" fill="currentColor" viewBox="0 0 20 20")
+                path(d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z")
+        span(class="text-[10px] text-slate-400 font-black tracking-[0.3em] uppercase") #{totalReviews || 0} Reviews
 
+      //- Thanh phân tích sao (DYNAMIC từ ratingDist)
       div(class="lg:col-span-2 flex flex-col justify-center space-y-4 max-w-lg mx-auto w-full")
-        each val, star in {5: '95%', 4: '4%', 3: '1%', 2: '0%', 1: '0%'}
+        each starLevel in [5, 4, 3, 2, 1]
+          - var count = (ratingDist && ratingDist[starLevel]) ? ratingDist[starLevel] : 0
+          - var pct = (totalReviews && totalReviews > 0) ? Math.round(count / totalReviews * 100) : 0
           div(class="flex items-center text-xs font-bold text-slate-500")
-            span(class="w-4")= star
+            span(class="w-4")= starLevel
             svg(class="w-3 h-3 text-amber-400 mx-2" fill="currentColor" viewBox="0 0 20 20")
               path(d="M9.049 2.927l1.07 3.292h3.462l-2.8 2.034 1.07 3.292-2.8-2.034-2.8 2.034 1.07-3.292-2.8-2.034h3.462l1.07-3.292z")
             div.rating-bar-bg
-              div.rating-bar-fill(style=`width: ${val}`)
-            span(class="w-10 text-right text-slate-400 font-bold")= val
+              div.rating-bar-fill(style=`width: ${pct}%`)
+            span(class="w-10 text-right text-slate-400 font-bold") #{pct}%
 
-    //- Gallery hình ảnh từ User
-    div(class="mb-20")
-      h3(class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center")
-        svg(class="w-4 h-4 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24")
-          path(d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z")
-        | Hình ảnh từ khách hàng
-      
-      div(class="flex gap-4 overflow-x-auto hide-scrollbar pb-6")
-        each i in [1, 2, 3, 4, 5]
-          div(class="w-40 h-40 flex-shrink-0 rounded-[2rem] overflow-hidden shadow-sm hover:opacity-80 transition-opacity cursor-pointer border border-slate-100")
-            img(src=`https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80` class="w-full h-full object-cover")
-        div(class="w-40 h-40 flex-shrink-0 bg-white border border-dashed border-slate-300 rounded-[2rem] flex flex-col items-center justify-center text-slate-400 hover:border-blue-500 hover:text-blue-500 transition-all cursor-pointer")
-          svg(class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24")
-            path(d="M12 4v16m8-8H4")
-          span(class="text-[10px] font-black uppercase tracking-widest") Xem thêm
+    //- ─── Gallery hình ảnh từ khách hàng (DYNAMIC từ allMedia) ───
+    if allMedia && allMedia.length > 0
+      div(class="mb-20")
+        h3(class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center")
+          svg(class="w-4 h-4 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+            path(d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z")
+          | Hình ảnh từ khách hàng (#{allMedia.length})
+        
+        div(class="flex gap-4 overflow-x-auto hide-scrollbar pb-6")
+          - var maxGallery = Math.min(allMedia.length, 6)
+          each media, idx in allMedia
+            if idx < maxGallery
+              div(class="w-40 h-40 flex-shrink-0 rounded-[2rem] overflow-hidden shadow-sm hover:opacity-80 transition-opacity cursor-pointer border border-slate-100")
+                if media.type === 'VIDEO'
+                  video(src=media.url class="w-full h-full object-cover" muted)
+                else
+                  img(src=media.url alt="Ảnh đánh giá" class="w-full h-full object-cover")
+          if allMedia.length > maxGallery
+            div(class="w-40 h-40 flex-shrink-0 bg-white border border-dashed border-slate-300 rounded-[2rem] flex flex-col items-center justify-center text-slate-400 hover:border-blue-500 hover:text-blue-500 transition-all cursor-pointer")
+              svg(class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24")
+                path(d="M12 4v16m8-8H4")
+              span(class="text-[10px] font-black uppercase tracking-widest") +#{allMedia.length - maxGallery} ảnh
 
-    //- Bộ lọc & Sắp xếp
+    //- ─── Bộ lọc & Sắp xếp ───
+    - var mediaCount = (allMedia && allMedia.length) || 0
     div(class="flex flex-col lg:flex-row justify-between items-center py-8 border-t border-b border-slate-100 mb-12 gap-6")
       div(class="flex items-center gap-3 overflow-x-auto w-full lg:w-auto hide-scrollbar")
         span(class="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap") Lọc theo:
         button(class="px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-bold whitespace-nowrap") Tất cả
-        button(class="px-6 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 whitespace-nowrap") Có hình ảnh (42)
+        button(class="px-6 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 whitespace-nowrap") Có hình ảnh (#{mediaCount})
         each s in [5, 4, 3, 2, 1]
-          button(class="px-6 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 whitespace-nowrap") #{s} Sao
+          - var sCount = (ratingDist && ratingDist[s]) ? ratingDist[s] : 0
+          button(class="px-6 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-100 whitespace-nowrap") #{s} Sao (#{sCount})
 
       div(class="flex items-center gap-4 flex-shrink-0")
         span(class="text-[10px] font-black text-slate-400 uppercase tracking-widest") Sắp xếp:
@@ -132,49 +163,77 @@ block content
           option Đánh giá cao
           option Cũ nhất
 
-    //- Danh sách Đánh giá
-    div(class="space-y-16")
-      each fb, index in [1, 2, 3]
-        article(class="group relative pb-12 border-b border-slate-50 last:border-0")
-          div(class="flex items-start gap-6")
-            //- Avatar User
-            if fb.user && fb.user.avatar
-              div(class="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-sm flex-shrink-0")
-                img(src=fb.user.avatar alt="Reviewer Avatar" class="w-full h-full object-cover")
-            else
-              div(class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border-4 border-white shadow-sm flex-shrink-0 uppercase")
-                | #{fb.user ? fb.user.name.charAt(0) : (index === 0 ? 'N' : 'A')}
-            
-            div(class="flex-1")
-              div(class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2")
-                div
-                  h4(class="font-black text-slate-900 text-base") Nguyễn Việt H***
-                  p(class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1") Đã mua tại ShopVN • 12/05/2024
-                div(class="flex text-amber-400 gap-0.5")
-                  each s in [1, 2, 3, 4, 5]
-                    svg(class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20")
-                      path(d="M9.049 2.927l1.07 3.292h3.462l-2.8 2.034 1.07 3.292-2.8-2.034-2.8 2.034 1.07-3.292-2.8-2.034h3.462l1.07-3.292z")
+    //- ═══════════════════════════════════════════════════════
+    //- DANH SÁCH ĐÁNH GIÁ (DYNAMIC vòng lặp feedbacks từ DB)
+    //- ═══════════════════════════════════════════════════════
+    if feedbacks && feedbacks.length > 0
+      div(class="space-y-16")
+        each fb in feedbacks
+          article(class="group relative pb-12 border-b border-slate-50 last:border-0")
+            div(class="flex items-start gap-6")
+              //- Avatar User (fallback chữ cái đầu)
+              if fb.user && fb.user.avatar
+                div(class="w-14 h-14 rounded-full overflow-hidden border-4 border-white shadow-sm flex-shrink-0")
+                  img(src=fb.user.avatar alt="Avatar" class="w-full h-full object-cover")
+              else
+                div(class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg border-4 border-white shadow-sm flex-shrink-0 uppercase")
+                  | #{fb.user ? fb.user.name.charAt(0) : '?'}
               
-              div(class="flex flex-wrap gap-2 mb-4")
-                span(class="text-[9px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded") Đúng mô tả
-                span(class="text-[9px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded") Giao hàng nhanh
+              div(class="flex-1")
+                div(class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2")
+                  div
+                    //- Tên: Ẩn danh hoặc hiển thị thường
+                    if fb.isAnonymous
+                      h4(class="font-black text-slate-900 text-base") #{maskName(fb.user.name)}
+                    else
+                      h4(class="font-black text-slate-900 text-base") #{fb.user.name}
+                    //- Ngày đánh giá
+                    - var d = new Date(fb.createdAt)
+                    - var dateStr = d.getDate().toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear()
+                    p(class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1") Đã mua tại ShopVN • #{dateStr}
+                  
+                  //- Số sao (DYNAMIC theo fb.rating)
+                  div(class="flex text-amber-400 gap-0.5")
+                    each s in [1, 2, 3, 4, 5]
+                      if s <= fb.rating
+                        svg(class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20")
+                          path(d="M9.049 2.927l1.07 3.292h3.462l-2.8 2.034 1.07 3.292-2.8-2.034-2.8 2.034 1.07-3.292-2.8-2.034h3.462l1.07-3.292z")
+                      else
+                        svg(class="w-3.5 h-3.5 text-slate-200" fill="currentColor" viewBox="0 0 20 20")
+                          path(d="M9.049 2.927l1.07 3.292h3.462l-2.8 2.034 1.07 3.292-2.8-2.034-2.8 2.034 1.07-3.292-2.8-2.034h3.462l1.07-3.292z")
+                
+                //- Tags (DYNAMIC, parse chuỗi phẩy)
+                if fb.tags
+                  div(class="flex flex-wrap gap-2 mb-4")
+                    - var tagList = fb.tags.split(',').map(t => t.trim()).filter(t => t)
+                    each tag in tagList
+                      span(class="text-[9px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded") #{tag}
 
-              p(class="text-slate-600 text-sm leading-relaxed mb-6") Sản phẩm tuyệt vời, kim cương rất sáng và bắt lửa. Vỏ nhẫn hoàn thiện tinh xảo. Tôi rất hài lòng với dịch vụ tư vấn của shop. Chắc chắn sẽ quay lại ủng hộ.
+                //- Nội dung đánh giá
+                p(class="text-slate-600 text-sm leading-relaxed mb-6") #{fb.content}
 
-              //- Phản hồi từ Shop
-              div(class="bg-slate-50 rounded-3xl p-6 border border-slate-100 relative mt-8 sm:ml-6")
-                div(class="absolute -top-3 left-6 w-6 h-3 bg-slate-50 border-t border-l border-slate-100 rotate-45 hidden sm:block")
-                header(class="flex items-center gap-3 mb-3")
-                  div(class="w-1.5 h-4 bg-blue-600 rounded-full")
-                  span(class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]") Phản hồi từ ShopVN Luxury
-                p(class="text-xs text-slate-500 leading-relaxed italic") "Chào Anh/Chị, ShopVN rất cảm ơn đánh giá tuyệt vời từ Anh/Chị. Niềm vui của khách hàng khi nhận sản phẩm ưng ý chính là động lực lớn nhất của chúng tôi. Hy vọng sẽ được phục vụ Anh/Chị trong những lần tiếp theo ạ!"
+                //- Ảnh đính kèm đánh giá (DYNAMIC từ fb.reviewMedia)
+                if fb.reviewMedia && fb.reviewMedia.length > 0
+                  div(class="flex gap-3 mb-6 overflow-x-auto hide-scrollbar")
+                    each media in fb.reviewMedia
+                      div(class="w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden border border-slate-100 cursor-pointer hover:opacity-80 transition-opacity")
+                        if media.type === 'VIDEO'
+                          video(src=media.url class="w-full h-full object-cover" muted)
+                        else
+                          img(src=media.url alt="Ảnh đánh giá" class="w-full h-full object-cover")
 
-    //- Pagination
-    nav(class="flex justify-center items-center gap-3 mt-24")
-      div(class="pagination-btn") ‹
-      div(class="pagination-btn active") 1
-      div(class="pagination-btn") 2
-      div(class="pagination-btn") 3
-      span(class="text-slate-300 font-bold mx-2") ...
-      div(class="pagination-btn") 12
-      div(class="pagination-btn") ›
+                //- Phản hồi từ Shop (DYNAMIC – chỉ hiện nếu có Reply)
+                if fb.reply
+                  div(class="bg-slate-50 rounded-3xl p-6 border border-slate-100 relative mt-8 sm:ml-6")
+                    div(class="absolute -top-3 left-6 w-6 h-3 bg-slate-50 border-t border-l border-slate-100 rotate-45 hidden sm:block")
+                    header(class="flex items-center gap-3 mb-3")
+                      div(class="w-1.5 h-4 bg-blue-600 rounded-full")
+                      span(class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]") Phản hồi từ ShopVN Luxury
+                    p(class="text-xs text-slate-500 leading-relaxed italic") "#{fb.reply.content}"
+
+    else
+      //- Trạng thái trống khi chưa có đánh giá
+      div(class="text-center py-20")
+        p(class="text-6xl mb-4") 📝
+        h3(class="text-xl font-bold text-slate-700 mb-2") Chưa có đánh giá nào
+        p(class="text-slate-400 text-sm") Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này!

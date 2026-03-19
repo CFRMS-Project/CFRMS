@@ -29,14 +29,14 @@ html(lang="vi")
   body(class="bg-white min-h-screen flex flex-col font-sans")
     
     //- Header layout
-    include ../partials/header.pug
+    include ../customer/header.pug
     
     //- Nội dung chính thay đổi theo từng trang
     main(class="flex-grow")
       block content
       
     //- Footer layout
-    include ../partials/footer.pug
+    include ../customer/footer.pug
     
     //- Khối dành cho script tuỳ biến ở các trang con
     block scripts
