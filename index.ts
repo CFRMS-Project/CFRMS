@@ -17,6 +17,7 @@ import path from "path";
 import authRoutes from "./routes/authRoutes.js";
 import feedbackRoutes from "./routes/customer/feedbackRoutes.js";
 import { requireLogin, requireRole } from "./middlewares/auth.js";
+import prisma from "./utils/db.js";
 
 const app = express();
 const PORT = process.env["PORT"] || 3000;
@@ -58,8 +59,31 @@ app.get("/customer/home", requireLogin, (_req, res) => {
   res.render("customer/home");
 });
 
-app.get("/customer/history", requireLogin, (_req, res) => {
-  res.render("customer/history");
+app.get("/customer/history", requireLogin, async (req, res) => {
+  try {
+    const user = res.locals["currentUser"];
+    const showAll = req.query.all === "1";
+    const feedbacks = await prisma.feedback.findMany({
+      where: showAll ? { isDeleted: false } : { userId: user.id, isDeleted: false },
+      include: { reviewMedia: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const message = req.query.message as string | undefined;
+    let toast = null;
+    if (message === "success") {
+      toast = { type: "success", text: "Gửi đánh giá thành công." };
+    } else if (message === "update_success") {
+      toast = { type: "success", text: "Cập nhật đánh giá thành công." };
+    } else if (message === "hide_success") {
+      toast = { type: "success", text: "Ẩn đánh giá thành công." };
+    }
+
+    res.render("customer/history", { feedbacks, toast, currentUser: user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
+  }
 });
 
 // Feedback routes (cần đăng nhập)
@@ -75,3 +99,4 @@ app.listen(PORT, () => {
   console.log(`Server đang chạy tại: http://localhost:${PORT}`);
   console.log(`Trang đăng nhập: http://localhost:${PORT}/login`);
 });
+

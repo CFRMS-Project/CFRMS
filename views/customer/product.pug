@@ -24,12 +24,12 @@ block content
     //- Cột trái: Gallery Ảnh
     div(class="space-y-6")
       div(class="aspect-square bg-slate-50 rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100 group")
-        img(src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80" alt="Main Product" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105")
+        img(src="https://res.cloudinary.com/dsaq5kgkg/image/upload/c_pad,w_1000,h_1000,q_auto,f_auto/v1774022475/seiko-prospex-speedtimer1_xhxv2i.jpg" alt="Main Product" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105")
       
       div(class="grid grid-cols-4 gap-4")
         each imgItem, index in ["watch-1", "watch-2", "watch-3"]
           div(class=`aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${index === 0 ? 'border-blue-600' : 'border-transparent hover:border-slate-200'}`)
-            img(src=`https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80` class="w-full h-full object-cover")
+            img(src=`https://res.cloudinary.com/dsaq5kgkg/image/upload/c_fill,w_400,h_400,q_auto,f_auto/v1774021108/Seiko-Presage-Maya-Bay2_xw6lt2.png` class="w-full h-full object-cover")
         div(class="aspect-square bg-slate-900 rounded-2xl flex flex-col items-center justify-center text-white cursor-pointer hover:bg-slate-800 transition-colors")
           span(class="text-xl font-bold") +2
           span(class="text-[10px] uppercase font-bold tracking-tighter") Ảnh khác
@@ -37,8 +37,8 @@ block content
     //- Cột phải: Thông tin & Mua hàng
     div(class="flex flex-col justify-center")
       header(class="mb-8")
-        span(class="inline-block text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4 bg-blue-50 px-3 py-1 rounded") Eternity Collection
-        h1(class="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight") Nhẫn Eternity Vàng Trắng 18K
+        span(class="inline-block text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4 bg-blue-50 px-3 py-1 rounded") Seiko Prospex & Presage Premium
+        h1(class="text-4xl md:text-5xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight") Seiko Prospex Speedtimer Solar Chronograph
         
         //- Sao trung bình & Số đánh giá (DYNAMIC)
         div(class="flex items-center gap-4 mb-8")
@@ -58,13 +58,13 @@ block content
           a(href="#reviews-section" class="text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors tracking-widest uppercase underline underline-offset-4") (#{totalReviews || 0} đánh giá)
 
       div(class="mb-10")
-        p(class="text-4xl font-light text-slate-900 mb-2") 45.000.000 VNĐ
+        p(class="text-4xl font-light text-slate-900 mb-2") 18.500.000 VNĐ
         p(class="text-[10px] font-bold text-slate-400 uppercase tracking-widest") Đã bao gồm thuế VAT
 
-      p(class="text-slate-500 text-sm leading-relaxed mb-10 border-l-4 border-slate-100 pl-6") Thiết kế vượt thời gian, tôn vinh vẻ đẹp vĩnh cửu. Nhẫn Eternity được chế tác từ vàng trắng 18k cao cấp kết hợp cùng những viên kim cương tự nhiên tinh khiết.
+      p(class="text-slate-500 text-sm leading-relaxed mb-10 border-l-4 border-slate-100 pl-6") Sự kết hợp hoàn hảo giữa di sản bấm giờ thể thao từ năm 1969 và công nghệ Solar hiện đại. Seiko Speedtimer mang đến độ chính xác tuyệt đối với mặt số xanh đại dương được hoàn thiện tinh xảo, phản chiếu ánh sáng đa góc độ dưới lớp kính Sapphire chống chói.
 
       ul(class="space-y-4 mb-12")
-        each text in ["Kim cương tự nhiên GIA Certificate", "Vàng trắng 18k (750)", "Bảo hành trọn đời & Đánh bóng miễn phí"]
+        each text in ["Cỗ máy Caliber V192 - Chạy bằng năng lượng ánh sáng", "Kính Sapphire cong nguyên khối chống trầy xước", "Thép không gỉ 316L phay xước cao cấp"]
           li(class="flex items-center text-xs font-bold text-slate-700 tracking-wide uppercase")
             span(class="w-2 h-2 bg-blue-500 rounded-full mr-4")
             = text
@@ -89,7 +89,7 @@ block content
         h2(class="text-3xl font-black text-slate-900 tracking-tight mb-2") Đánh giá từ khách hàng
         p(class="text-slate-400 text-sm") Chia sẻ cảm nhận của bạn về tuyệt tác này
 
-      a(href="/order/1/feedback" class="bg-slate-900 hover:bg-black text-white px-8 py-4 rounded-full text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-3 uppercase tracking-widest")
+      a(href="/feedback/new?productId=1" class="bg-slate-900 hover:bg-black text-white px-8 py-4 rounded-full text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-3 uppercase tracking-widest")
         svg(class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5")
           path(d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z")
         | Viết đánh giá của bạn
@@ -243,70 +243,121 @@ block content
 block scripts
   script.
     document.addEventListener("DOMContentLoaded", function() {
-      const filterBtns = document.querySelectorAll(".filter-btn");
-      const sortSelect = document.getElementById("sort-select");
+      const filterBtns     = document.querySelectorAll(".filter-btn");
+      const sortSelect     = document.getElementById("sort-select");
       const reviewContainer = document.getElementById("reviews-list");
-      
-      if (!reviewContainer) return; // Không có danh sách đánh giá thì thôi
 
-      // Lưu trữ DOM nodes cố định để sort & filter
+      if (!reviewContainer) return;
+
       const reviewItems = Array.from(reviewContainer.querySelectorAll(".review-item"));
 
-      function applyFilters() {
-        const activeBtn = document.querySelector(".filter-btn.bg-slate-900");
-        const filterVal = activeBtn ? activeBtn.getAttribute("data-filter") : "all";
-        const sortVal = sortSelect.value;
-        
-        let filtered = reviewItems;
-        
-        // --- 1. Lọc ---
-        if (filterVal === "media") {
-          filtered = reviewItems.filter(el => el.getAttribute("data-has-media") === "true");
-        } else if (filterVal !== "all") {
-          filtered = reviewItems.filter(el => el.getAttribute("data-rating") === filterVal);
+      const PAGE_SIZE   = 5;
+      let currentPage   = 1;
+      let filteredItems = [...reviewItems];
+
+      // ── Phân trang ──
+      function renderPagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+        let pager = document.getElementById("reviews-pager");
+        if (!pager) {
+          pager = document.createElement("div");
+          pager.id = "reviews-pager";
+          pager.className = "flex items-center justify-center gap-2 mt-16";
+          reviewContainer.after(pager);
+        }
+        pager.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        // Nút Prev
+        const prev = document.createElement("button");
+        prev.className = "pagination-btn" + (currentPage === 1 ? " opacity-40 cursor-not-allowed" : "");
+        prev.disabled  = currentPage === 1;
+        prev.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>`;
+        prev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; applyFilters(true); } });
+        pager.appendChild(prev);
+
+        // Số trang
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.className = "pagination-btn" + (i === currentPage ? " active" : "");
+          btn.textContent = i;
+          btn.addEventListener("click", () => { currentPage = i; applyFilters(true); });
+          pager.appendChild(btn);
         }
 
-        // --- 2. Sắp xếp ---
-        filtered.sort((a, b) => {
+        // Nút Next
+        const next = document.createElement("button");
+        next.className = "pagination-btn" + (currentPage === totalPages ? " opacity-40 cursor-not-allowed" : "");
+        next.disabled  = currentPage === totalPages;
+        next.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`;
+        next.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; applyFilters(true); } });
+        pager.appendChild(next);
+      }
+
+      // ── Filter + Sort + Pagination ──
+      function applyFilters(keepPage) {
+        if (!keepPage) currentPage = 1;
+
+        const activeBtn = document.querySelector(".filter-btn.bg-slate-900");
+        const filterVal = activeBtn ? activeBtn.getAttribute("data-filter") : "all";
+        const sortVal   = sortSelect.value;
+
+        // 1. Lọc
+        if (filterVal === "media") {
+          filteredItems = reviewItems.filter(el => el.getAttribute("data-has-media") === "true");
+        } else if (filterVal !== "all") {
+          filteredItems = reviewItems.filter(el => el.getAttribute("data-rating") === filterVal);
+        } else {
+          filteredItems = [...reviewItems];
+        }
+
+        // 2. Sắp xếp
+        filteredItems.sort((a, b) => {
           if (sortVal === "highest") {
             return parseInt(b.getAttribute("data-rating") || "0") - parseInt(a.getAttribute("data-rating") || "0");
           } else if (sortVal === "oldest") {
             return parseInt(a.getAttribute("data-date") || "0") - parseInt(b.getAttribute("data-date") || "0");
           } else {
-            // newest (default)
             return parseInt(b.getAttribute("data-date") || "0") - parseInt(a.getAttribute("data-date") || "0");
           }
         });
 
-        // --- 3. Cập nhật DOM trực quan ---
-        // Ẩn tất cả đi
-        reviewItems.forEach(el => el.style.display = "none");
-        
-        // Hiện & đưa những bài đạt điều kiện xuống cuối (để xếp đúng thứ tự)
-        filtered.forEach(el => {
+        // 3. Phân trang — tính slice
+        const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start   = (currentPage - 1) * PAGE_SIZE;
+        const visible = filteredItems.slice(start, start + PAGE_SIZE);
+
+        // 4. Ẩn tất cả, rồi hiện + sắp xếp các item trong trang hiện tại
+        reviewItems.forEach(el => {
+          el.style.display = "none";
+          reviewContainer.appendChild(el);
+        });
+        visible.forEach(el => {
           el.style.display = "";
-          reviewContainer.appendChild(el); 
+          reviewContainer.appendChild(el);
         });
 
-        // Nếu mảng rỗng thì có thể báo "Không có đánh giá nào phù hợp", nhưng tạm thời cứ ẩn hết là được.
+        // 5. Render pager
+        renderPagination(filteredItems.length);
       }
 
-      // Gắn SK cho các nút Lọc
+      // Gắn SK Filter
       filterBtns.forEach(btn => {
         btn.addEventListener("click", function() {
-          // Xóa trạng thái active của nút cũ
           filterBtns.forEach(b => {
-             b.classList.remove("bg-slate-900", "text-white");
-             b.classList.add("bg-slate-50", "text-slate-600");
+            b.classList.remove("bg-slate-900", "text-white");
+            b.classList.add("bg-slate-50", "text-slate-600");
           });
-          // Kích hoạt nút hiện tại
           this.classList.remove("bg-slate-50", "text-slate-600");
           this.classList.add("bg-slate-900", "text-white");
-          
-          applyFilters();
+          applyFilters(false);
         });
       });
 
-      // Gắn SK cho dropdown Sắp xếp
-      sortSelect.addEventListener("change", applyFilters);
+      // Gắn SK Sort
+      sortSelect.addEventListener("change", () => applyFilters(false));
+
+      // Khởi tạo trang đầu
+      applyFilters(false);
     });

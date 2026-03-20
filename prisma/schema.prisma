@@ -48,8 +48,10 @@ model Feedback {
   content     String        @db.Text
   tags        String?       // Đồng bộ: Lưu "Đúng mô tả", "Giao nhanh"...
   isAnonymous Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
   status      StatusEnum    @default(PENDING)
   createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   
   // Quan hệ với User
   userId      Int

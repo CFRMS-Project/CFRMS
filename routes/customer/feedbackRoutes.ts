@@ -19,23 +19,34 @@ import {
   showFeedbackForm,
   submitFeedback,
   showProductDetail,
+  showFeedback,
+  showEditForm,
+  updateFeedback,
+  toggleHideFeedback,
 } from "../../controllers/customer/feedbackController.js";
 
 const router = Router();
 
 // --- GET: Hiển thị trang chi tiết sản phẩm ---
-// URL: /product/:id
-// Ví dụ: /product/1 → hiển thị chi tiết sản phẩm giao diện mẫu
 router.get("/product/:id", showProductDetail);
 
-// --- GET: Hiển thị form đánh giá ---
-// URL: /order/:id/feedback
-// Ví dụ: /order/1/feedback → hiển thị form cho đơn hàng #1
+// --- GET: Hiển thị form đánh giá (tạo mới) ---
+router.get("/feedback/new", showFeedbackForm);
 router.get("/order/:id/feedback", showFeedbackForm);
 
-// --- POST: Xử lý gửi đánh giá ---
-// Luồng: Form submit → Multer xử lý file upload → Controller lưu DB
-// uploadReviewImages: middleware Multer cho phép tối đa 5 ảnh
+// --- POST: Xử lý gửi đánh giá (mới) ---
 router.post("/feedback", uploadReviewImages, submitFeedback);
+
+// --- GET: Xem chi tiết 1 đánh giá ---
+router.get("/feedback/:id", showFeedback);
+
+// --- GET: Hiển thị form đánh giá (sửa) ---
+router.get("/feedback/:id/edit", showEditForm);
+
+// --- POST: Cập nhật đánh giá ---
+router.post("/feedback/:id/update", uploadReviewImages, updateFeedback);
+
+// --- POST: Ẩn đánh giá ---
+router.post("/feedback/:id/toggle-hide", toggleHideFeedback);
 
 export default router;

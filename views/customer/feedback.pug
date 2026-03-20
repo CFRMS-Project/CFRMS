@@ -1,97 +1,289 @@
-doctype html
-html(lang="vi")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title Đánh giá sản phẩm - ShopVN
-    script(src="https://cdn.tailwindcss.com")
-    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap", rel="stylesheet")
-    style.
-      body { font-family: 'Inter', sans-serif; }
-      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+extends ../layouts/customer.pug
 
-  body(class="bg-slate-50 text-slate-900 antialiased")
-    main.feedback-wrapper(class="max-w-[640px] mx-auto my-10 px-4")
-      
-      //- Header
-      header.feedback-header(class="flex items-center mb-8")
-        a.back-btn(href="history.html" class="p-2 -ml-2 text-slate-500 hover:text-slate-900 transition-colors bg-white rounded-full shadow-sm border border-slate-100 mr-4")
-          svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-            line(x1="19" y1="12" x2="5" y2="12")
-            polyline(points="12 19 5 12 12 5")
-        div(class="flex-1")
-          h1(class="text-lg font-bold text-slate-800") Viết đánh giá
-          span.order-id(class="text-[10px] font-bold text-slate-400 uppercase tracking-widest") Đơn hàng #SVN2024
+block content
+  - const isEdit = mode === 'edit';
+  - const isView = mode === 'view';
+  - const initialRating = feedback ? feedback.rating : 0;
+  - const initialTags = feedback && feedback.tags ? feedback.tags.split(',').map((t) => t.trim()) : [];
+  - const initialImages = feedback && feedback.reviewMedia ? feedback.reviewMedia.map((m) => m.url) : [];
+  - const initialContent = feedback ? feedback.content : '';
 
-      //- Thông tin sản phẩm
-      section.feedback-product(class="bg-white rounded-2xl p-4 flex items-center gap-5 mb-6 shadow-sm border border-slate-100")
-        img(src="https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80" alt="Nhẫn đính hôn" class="w-16 h-16 rounded-xl object-cover bg-slate-900 shadow-inner")
-        .product-info
-          h3(class="text-sm font-bold text-slate-800") Nhẫn đính hôn Diamond Minimalist
-          p(class="text-xs text-slate-500 mt-1") Phân loại: Vàng 18K - Size 12
+  //- ══════════════════════════════════════════
+  //- MODE: VIEW (Read-only — không có form)
+  //- ══════════════════════════════════════════
+  if isView
+    div(class='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex justify-center items-start py-10 px-4')
+      div(class='bg-white w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden')
 
-      //- Form Đánh giá
-      form.feedback-form(action="#" class="bg-white rounded-[2rem] p-8 md:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 mb-8")
-        
-        //- Rating Stars
-        .rating-section(class="text-center mb-10")
-          h2(class="text-xl font-extrabold text-slate-800 mb-6") Bạn thấy sản phẩm này thế nào?
-          .stars(class="flex justify-center gap-3 mb-3")
-            - for (var x = 0; x < 4; x++)
-              svg.star(class="w-10 h-10 text-amber-400 cursor-pointer transition-transform hover:scale-110 active:scale-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor")
-                polygon(points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2")
-            svg.star(class="w-10 h-10 text-slate-200 cursor-pointer transition-transform hover:scale-110 active:scale-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-              polygon(points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2")
-          span.rating-text(class="text-sm font-bold text-blue-600 tracking-wide uppercase") Tuyệt vời
+        //- Header
+        div(class='bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 flex items-center justify-between')
+          div(class='flex items-center gap-4')
+            a(href='/customer/history' class='text-white/70 hover:text-white transition-colors')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M10 19l-7-7m0 0l7-7m-7 7h18')
+            h2(class='text-white text-lg font-bold tracking-tight') Chi tiết đánh giá
+          a(href=`/feedback/${feedback.id}/edit` class='flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all')
+            svg(xmlns='http://www.w3.org/2000/svg' class='w-3.5 h-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+              path(stroke-linecap='round' stroke-linejoin='round' d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z')
+            | Chỉnh sửa
 
-        //- Media Upload
-        .media-section(class="mb-8")
-          h3(class="text-sm font-bold text-slate-700 mb-4") Hình ảnh & Video thực tế
-          .media-grid(class="flex flex-wrap gap-3")
-            .media-item(class="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative cursor-zoom-in")
-              img(src="https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80" alt="Hình thực tế 1" class="w-full h-full object-cover transition-transform group-hover:scale-110")
-            .media-item(class="w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative cursor-zoom-in")
-              img(src="https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80" alt="Hình thực tế 2" class="w-full h-full object-cover transition-transform group-hover:scale-110")
-            
-            label.media-upload(class="w-32 h-24 border-2 border-dashed border-blue-100 rounded-2xl flex flex-col items-center justify-center gap-2 text-blue-500 cursor-pointer bg-blue-50/30 hover:bg-blue-50 hover:border-blue-300 transition-all group")
-              input(type="file" hidden multiple accept="image/*,video/*")
-              svg(class="w-6 h-6 transition-transform group-hover:-translate-y-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2")
-                path(stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z")
-                path(stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z")
-              span(class="text-[10px] font-bold uppercase tracking-tighter") Thêm ảnh/video
+        div(class='px-8 py-8')
+          //- User info
+          div(class='flex items-center gap-4 mb-8 pb-6 border-b border-slate-100')
+            div(class='w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg uppercase')
+              | #{feedback.user ? feedback.user.name.charAt(0) : 'U'}
+            div
+              p(class='font-bold text-slate-800 text-base') #{feedback.isAnonymous ? 'Ẩn danh' : (feedback.user ? feedback.user.name : '')}
+              - var d = new Date(feedback.createdAt)
+              - var dateStr = d.getDate().toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear()
+              p(class='text-xs text-slate-400 mt-0.5') #{dateStr}
 
-        //- Quick Tags
-        .tags-section(class="mb-8")
-          h3(class="text-sm font-bold text-slate-700 mb-4") Đánh giá nhanh
-          .tags-container(class="flex flex-wrap gap-2")
-            button.tag(type="button" class="px-5 py-2 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-xs font-bold shadow-sm shadow-blue-100 transition-all") Đúng mô tả
-            each tag in ['Giao hàng nhanh', 'Đóng gói kỹ', 'Chất lượng tuyệt vời']
-              button.tag(type="button" class="px-5 py-2 rounded-full border border-slate-200 text-slate-500 text-xs font-medium hover:border-slate-400 hover:text-slate-700 transition-all")= tag
+          //- Rating stars
+          div(class='mb-6')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Đánh giá
+            div(class='flex items-center gap-1')
+              each s in [1,2,3,4,5]
+                if s <= initialRating
+                  svg(xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-amber-400' viewBox='0 0 24 24' fill='currentColor')
+                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+                else
+                  svg(xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-slate-200' viewBox='0 0 24 24' fill='currentColor')
+                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+              span(class='ml-3 text-sm font-bold text-amber-500') #{initialRating}/5 sao
 
-        //- Text Review
-        .comment-section(class="mb-8")
-          h3(class="text-sm font-bold text-slate-700 mb-4") Chia sẻ thêm về trải nghiệm
-          .textarea-wrapper(class="relative group")
-            textarea(class="w-full min-h-[140px] p-5 bg-slate-50 border border-slate-100 rounded-2xl text-sm text-slate-800 outline-none focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400 custom-scrollbar" placeholder="Sản phẩm dùng rất tốt, vẻ ngoài lộng lẫy..." maxlength="500")
-            span.char-count(class="absolute bottom-4 right-5 text-[10px] font-bold text-slate-300 group-focus-within:text-slate-400 uppercase tracking-widest") 0/500
+          //- Tags
+          if initialTags.length > 0
+            div(class='mb-6')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Nhận xét nhanh
+              div(class='flex flex-wrap gap-2')
+                each tag in initialTags
+                  span(class='px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200') #{tag}
 
-        //- Anonymous Checkbox
-        .anonymous-section(class="mb-10")
-          label.checkbox-label(class="flex items-center gap-3 cursor-pointer group")
-            div(class="relative flex items-center")
-              input(type="checkbox" class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:border-blue-500 checked:bg-blue-500 hover:border-blue-400")
-              svg(class="absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4")
-                path(stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7")
-            span(class="text-xs font-medium text-slate-500 group-hover:text-slate-800 transition-colors") Gửi đánh giá dưới tên ẩn danh
+          //- Content
+          div(class='mb-6')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Nội dung đánh giá
+            div(class='bg-slate-50 rounded-2xl p-5 border border-slate-100')
+              p(class='text-slate-700 text-sm leading-relaxed') #{initialContent}
 
-        //- Submit
-        button.btn-submit-review(type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-blue-500/30 flex items-center justify-center gap-3 transition-all active:scale-[0.98]")
-          span Gửi đánh giá ngay
-          svg(xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round")
-            line(x1="22" y1="2" x2="11" y2="13")
-            polygon(points="22 2 15 22 11 13 2 9 22 2")
+          //- Images
+          if initialImages.length > 0
+            div(class='mb-6')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Hình ảnh thực tế
+              div(class='flex flex-wrap gap-3')
+                each url in initialImages
+                  div(class='w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity')
+                    img(src=url alt='Ảnh đánh giá' class='w-full h-full object-cover')
 
-      //- Footer Note
-      .feedback-footer-text(class="text-center pb-10 px-6")
-        p(class="text-[11px] text-slate-400 leading-relaxed max-w-sm mx-auto uppercase tracking-tighter font-medium") Bằng cách gửi đánh giá, bạn đồng ý với #[a(href="#" class="text-blue-500 font-bold hover:underline") Điều khoản & Chính sách] của ShopVN. Đánh giá của bạn sẽ giúp cộng đồng mua sắm tốt hơn.
+  //- ══════════════════════════════════════════
+  //- MODE: CREATE / EDIT (Form)
+  //- ══════════════════════════════════════════
+  else
+    div(class='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex justify-center items-start py-10 px-4')
+      div(class='bg-white w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden')
+
+        //- Header gradient
+        div(class='bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 flex items-center justify-between')
+          div(class='flex items-center gap-4')
+            a(href='/customer/history' class='text-white/70 hover:text-white transition-colors')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M10 19l-7-7m0 0l7-7m-7 7h18')
+            h2(class='text-white text-lg font-bold tracking-tight')
+              if isEdit
+                | Chỉnh sửa đánh giá
+              else
+                | Viết đánh giá
+          if isEdit
+            a(href='/customer/history' class='text-white/70 hover:text-white text-xs font-bold transition-colors') Quay lại
+
+        //- Form body
+        form#feedbackForm(action=isEdit ? `/feedback/${feedback.id}/update` : '/feedback' method='POST' enctype='multipart/form-data' class='px-8 py-8 space-y-8')
+
+          //- Star Rating
+          div(class='text-center')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-4') Bạn thấy sản phẩm này thế nào?
+            input#ratingInput(type='hidden' name='rating' value=initialRating)
+            div#starContainer(class='flex justify-center gap-2 mb-3')
+              each val in [1,2,3,4,5]
+                - const isActive = val <= initialRating;
+                button.star-btn(type='button' data-value=val class='transition-transform hover:scale-110 focus:outline-none')
+                  svg(xmlns='http://www.w3.org/2000/svg' class=`w-10 h-10 ${isActive ? 'text-amber-400' : 'text-slate-200'}` viewBox='0 0 24 24' fill='currentColor')
+                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+            p#ratingLabel(class='text-sm font-bold')
+              if initialRating > 0
+                span(class='text-amber-500') #{initialRating} sao
+              else
+                span(class='text-slate-400') Nhấn để chọn sao
+
+          //- Quick Tags
+          div
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Đánh giá nhanh
+            input#tagsInput(type='hidden' name='tags' value=initialTags.join(', '))
+            div#tagContainer(class='flex flex-wrap gap-2 justify-center')
+              - const predefined = ['Đúng mô tả', 'Giao hàng nhanh', 'Đóng gói kỹ', 'Chất lượng tuyệt vời', 'Thái độ tốt'];
+              each tag in predefined
+                - const isSelected = initialTags.includes(tag);
+                button.tag-btn(type='button' data-tag=tag class=`px-4 py-2 border-2 rounded-full text-xs font-bold transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600'}`) #{tag}
+
+          //- Textarea
+          div
+            div(class='flex items-center justify-between mb-2')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest') Nội dung đánh giá
+              span#charCount(class='text-xs text-slate-400 font-medium') #{initialContent.length}/500
+            textarea#contentInput(name='content' rows='4' maxlength='500' placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm...' class='w-full border-2 border-slate-200 rounded-2xl p-4 text-sm text-slate-700 focus:outline-none focus:border-blue-400 resize-none transition-colors') #{initialContent}
+
+          //- Image Upload
+          div
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Hình ảnh thực tế
+            input#removedImages(type='hidden' name='removedImages' value='[]')
+            div#imagePreview(class='flex flex-wrap gap-3 mb-3')
+            label(for='imageInput' class='inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-2xl text-xs font-bold text-slate-500 hover:text-blue-600 transition-all')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z')
+              | Chọn ảnh (tối đa 5)
+            input#imageInput(type='file' name='images' multiple accept='image/jpeg,image/jpg,image/png' class='hidden')
+            p(class='text-xs text-slate-400 mt-2') Hỗ trợ: JPG, JPEG, PNG — tối đa 10MB mỗi ảnh
+
+          //- Anonymous toggle
+          div(class='flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100')
+            input#isAnonymous(type='checkbox' name='isAnonymous' value='on' class='w-4 h-4 accent-blue-600 cursor-pointer' checked=feedback && feedback.isAnonymous)
+            label(for='isAnonymous' class='text-sm font-medium text-slate-700 cursor-pointer') Đánh giá ẩn danh (tên sẽ được che)
+
+          //- Submit
+          div(class='flex justify-end gap-3')
+            a(href='/customer/history' class='px-6 py-3 rounded-full border-2 border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition-all') Hủy
+            button(type='submit' class='px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-full shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                if isEdit
+                  path(stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7')
+                else
+                  path(stroke-linecap='round' stroke-linejoin='round' d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8')
+              if isEdit
+                | Cập nhật
+              else
+                | Gửi đánh giá
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      var feedbackForm = document.getElementById('feedbackForm');
+      if (!feedbackForm) return;
+
+      var stars        = document.querySelectorAll('.star-btn');
+      var ratingInput  = document.getElementById('ratingInput');
+      var ratingLabel  = document.getElementById('ratingLabel');
+      var contentInput = document.getElementById('contentInput');
+      var charCount    = document.getElementById('charCount');
+      var tagButtons   = document.querySelectorAll('.tag-btn');
+      var tagsInput    = document.getElementById('tagsInput');
+      var imageInput   = document.getElementById('imageInput');
+      var imagePreview = document.getElementById('imagePreview');
+
+      // Star rating
+      function setStars(value) {
+        ratingInput.value = value;
+        stars.forEach(function(btn) {
+          var svg = btn.querySelector('svg');
+          var v   = Number(btn.dataset.value);
+          if (v <= value) {
+            svg.classList.remove('text-slate-200');
+            svg.classList.add('text-amber-400');
+          } else {
+            svg.classList.add('text-slate-200');
+            svg.classList.remove('text-amber-400');
+          }
+        });
+        ratingLabel.innerHTML = value
+          ? '<span class="text-amber-500">' + value + ' sao</span>'
+          : '<span class="text-slate-400">Nhấn để chọn sao</span>';
+      }
+      stars.forEach(function(star) {
+        star.addEventListener('click', function() { setStars(Number(star.dataset.value)); });
+      });
+
+      // Tags
+      var initialTagsJS = !{JSON.stringify(initialTags)};
+      tagButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tag  = btn.dataset.tag;
+          var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+          if (tags.indexOf(tag) !== -1) {
+            tags.splice(tags.indexOf(tag), 1);
+            btn.classList.remove('bg-blue-600', 'border-blue-600', 'text-white');
+            btn.classList.add('border-slate-200', 'text-slate-600');
+          } else {
+            tags.push(tag);
+            btn.classList.add('bg-blue-600', 'border-blue-600', 'text-white');
+            btn.classList.remove('border-slate-200', 'text-slate-600');
+          }
+          tagsInput.value = tags.join(', ');
+        });
+      });
+
+      // Char count
+      contentInput.addEventListener('input', function() {
+        charCount.textContent = contentInput.value.length + '/500';
+      });
+
+      // Image preview
+      var existingImages    = !{JSON.stringify(initialImages)};
+      var removedImagesInput = document.getElementById('removedImages');
+      var removedSet        = [];
+
+      function syncRemoved() {
+        removedImagesInput.value = JSON.stringify(removedSet);
+      }
+
+      function renderExistingImage(url) {
+        var wrap = document.createElement('div');
+        wrap.className = 'relative group';
+        wrap.innerHTML =
+          '<img src="' + url + '" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200"/>' +
+          '<button type="button" class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md">x</button>';
+        wrap.querySelector('.remove-btn').addEventListener('click', function() {
+          removedSet.push(url);
+          wrap.remove();
+          syncRemoved();
+        });
+        imagePreview.appendChild(wrap);
+      }
+
+      existingImages.forEach(function(url) { renderExistingImage(url); });
+
+      imageInput.addEventListener('change', function(e) {
+        var files = Array.from(e.target.files || []);
+        var currentCount = imagePreview.querySelectorAll('img').length;
+        if (currentCount + files.length > 5) {
+          alert('Tối đa 5 ảnh (bao gồm ảnh cũ).');
+          imageInput.value = '';
+          return;
+        }
+        files.forEach(function(file) {
+          var reader = new FileReader();
+          reader.onload = function() {
+            var wrap = document.createElement('div');
+            wrap.className = 'relative group';
+            wrap.innerHTML =
+              '<img src="' + reader.result + '" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200"/>' +
+              '<button type="button" class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md">x</button>';
+            wrap.querySelector('.remove-btn').addEventListener('click', function() { wrap.remove(); });
+            imagePreview.appendChild(wrap);
+          };
+          reader.readAsDataURL(file);
+        });
+        syncRemoved();
+      });
+
+      // Form validation
+      feedbackForm.addEventListener('submit', function(e) {
+        if (!Number(ratingInput.value) || Number(ratingInput.value) < 1) {
+          e.preventDefault();
+          alert('Vui lòng chọn số sao!');
+          return;
+        }
+        if (!contentInput.value.trim()) {
+          e.preventDefault();
+          alert('Vui lòng nhập nội dung đánh giá!');
+          return;
+        }
+      });
+    });
