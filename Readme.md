@@ -36,6 +36,8 @@ Dự án áp dụng mô hình kiến trúc phân lớp, yêu cầu mọi ngườ
 ├── index.ts          # Điểm neo khởi chạy toàn bộ ứng dụng (Entry point)
 └── package.json      # Danh sách thư viện và scripts
 
+
+```
 ## Hướng dẫn Setup & Chạy dự án
 
 Sau khi clone code về, thực hiện các bước sau:
@@ -43,7 +45,6 @@ Sau khi clone code về, thực hiện các bước sau:
 1. Cài đặt thư viện
 ```bash
 npm install
-```
 
 2. Thiết lập file .env
 Tạo file .env ở thư mục gốc. Lấy chuỗi kết nối từ Dashboard của Neon DB và điền vào:
