@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,7 +6,52 @@ datasource db {
   provider = "postgresql"
 }
 
-// Khai báo Enums
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String?    @unique
+  username  String     @unique
+  password  String
+  avatar    String?
+  role      RoleEnum   @default(CUSTOMER)
+  feedbacks Feedback[]
+  Reply     Reply[]
+}
+
+model Feedback {
+  id          Int           @id @default(autoincrement())
+  rating      Int
+  content     String
+  tags        String?
+  isAnonymous Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
+  status      StatusEnum    @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  Reply       Reply?
+  ReviewMedia ReviewMedia[]
+}
+
+model Reply {
+  id         Int      @id @default(autoincrement())
+  content    String
+  createdAt  DateTime @default(now())
+  feedbackId Int      @unique
+  adminId    Int
+  User       User     @relation(fields: [adminId], references: [id])
+  Feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+}
+
+model ReviewMedia {
+  id         Int       @id @default(autoincrement())
+  url        String
+  type       MediaType @default(IMAGE)
+  feedbackId Int
+  Feedback   Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+}
+
 enum RoleEnum {
   ADMIN
   CUSTOMER
@@ -23,27 +63,7 @@ enum StatusEnum {
   REJECTED
 }
 
-// Thực thể User
-model User {
-  id        Int        @id @default(autoincrement())
-  name      String
-  email     String     @unique
-  role      RoleEnum   @default(CUSTOMER)
-  
-  feedbacks Feedback[] 
-}
-
-// Thực thể Feedback
-model Feedback {
-  id        Int        @id @default(autoincrement())
-  rating    Int
-  content   String     @db.Text
-  status    StatusEnum @default(PENDING)
-  isDeleted Boolean    @default(false)
-  deletedAt DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
-  userId    Int
-  user      User       @relation(fields: [userId], references: [id])
+enum MediaType {
+  IMAGE
+  VIDEO
 }
