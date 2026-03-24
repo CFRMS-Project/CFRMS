@@ -18,7 +18,7 @@
 import type { Request, Response } from "express";
 import { StatusEnum } from "@prisma/client";
 import prisma from "../../utils/db.js";
-import { uploadToCloudinary } from "../../helpers/upToCloudinary.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../../helpers/upToCloudinary.js";
 
 // -------------------------------------------------------------------
 // Utility: Ẩn tên khách hàng cho đánh giá ẩn danh
@@ -59,7 +59,7 @@ export async function showProductDetail(
     // Thống kê sao
     let totalRating = 0;
     const ratingDist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } as { 1: number; 2: number; 3: number; 4: number; 5: number };
-    
+
     // Thu thập tất cả ảnh từ cộng đồng
     const allMedia: { url: string; type: string; feedbackId: number }[] = [];
 
@@ -187,13 +187,20 @@ export async function showEditForm(
       return;
     }
 
+    // [BẢO MẬT] Chỉ cho phép chủ sở hữu xem form sửa
+    const currentUser = res.locals["currentUser"];
+    if (!currentUser) {
+      res.status(401).send("Vui lòng đăng nhập.");
+      return;
+    }
+
     const feedback = await prisma.feedback.findUnique({
-      where: { id: feedbackId },
+      where: { id: feedbackId, userId: currentUser.id },
       include: { user: true, reviewMedia: true },
     });
 
     if (!feedback) {
-      res.status(404).send("Không tìm thấy đánh giá để sửa.");
+      res.status(404).send("Không tìm thấy đánh giá hoặc bạn không có quyền sửa.");
       return;
     }
 
@@ -221,6 +228,13 @@ export async function updateFeedback(
     const feedbackId = Number(req.params["id"]);
     if (Number.isNaN(feedbackId) || feedbackId <= 0) {
       res.status(400).send("ID đánh giá không hợp lệ.");
+      return;
+    }
+
+    // [BẢO MẬT] Chỉ cho phép chủ sở hữu cập nhật
+    const currentUser = res.locals["currentUser"];
+    if (!currentUser) {
+      res.status(401).send("Vui lòng đăng nhập.");
       return;
     }
 
@@ -257,7 +271,7 @@ export async function updateFeedback(
 
     const files = req.files as Express.Multer.File[] | undefined;
 
-    // Upload từng ảnh lên Cloudinary, lấy secure_url
+    // Upload từng ảnh mới lên Cloudinary, lấy secure_url
     const imagePaths: string[] = [];
     if (files && files.length > 0) {
       for (const file of files) {
@@ -266,8 +280,9 @@ export async function updateFeedback(
       }
     }
 
-    await prisma.feedback.update({
-      where: { id: feedbackId },
+    // [BẢO MẬT] Cập nhật chỉ khi feedback thuộc về currentUser
+    const updatedFeedback = await prisma.feedback.update({
+      where: { id: feedbackId, userId: currentUser.id },
       data: {
         rating: ratingNum,
         content: content.trim(),
@@ -276,11 +291,19 @@ export async function updateFeedback(
       },
     });
 
-    // Xóa các ảnh bị chỉ định xóa (nếu có)
+    if (!updatedFeedback) {
+      res.status(403).send("Bạn không có quyền sửa đánh giá này.");
+      return;
+    }
+
+    // Xóa ảnh: Xóa trong DB trước → sau đó xóa trên Cloudinary
     if (removedUrls.length > 0) {
+      // Bước 1: Xóa record trong DB
       await prisma.reviewMedia.deleteMany({
         where: { feedbackId, url: { in: removedUrls } },
       });
+      // Bước 2: Xóa ảnh tương ứng trên Cloudinary (sau khi DB đã xóa thành công)
+      await Promise.all(removedUrls.map((url) => deleteFromCloudinary(url)));
     }
 
     // Thêm ảnh mới vào (nếu có upload ảnh mới)
@@ -312,10 +335,22 @@ export async function toggleHideFeedback(
       return;
     }
 
-    await prisma.feedback.update({
-      where: { id: feedbackId },
+    // [BẢO MẬT] Chỉ cho phép chủ sở hữu ẩn đánh giá của chính mình
+    const currentUser = res.locals["currentUser"];
+    if (!currentUser) {
+      res.status(401).send("Vui lòng đăng nhập.");
+      return;
+    }
+
+    const updated = await prisma.feedback.updateMany({
+      where: { id: feedbackId, userId: currentUser.id },
       data: { isDeleted: true },
     });
+
+    if (updated.count === 0) {
+      res.status(403).send("Bạn không có quyền ẩn đánh giá này.");
+      return;
+    }
 
     res.redirect("/customer/history?message=hide_success");
   } catch (error) {

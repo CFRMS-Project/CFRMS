@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -e ts,pug,json,js --exec tsx index.ts",
+    "dev": "nodemon --exec tsx index.ts",
     "build": "tsc",
     "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,6 +27,7 @@
     "@types/ejs": "^3.1.5",
     "@types/express-session": "^1.18.2",
     "@types/multer": "^2.1.0",
+    "@types/streamifier": "^0.1.2",
     "cloudinary": "^2.9.0",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
@@ -41,7 +42,6 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
-    "@types/streamifier": "^0.1.2",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

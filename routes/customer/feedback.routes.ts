@@ -14,7 +14,7 @@
  */
 
 import { Router } from "express";
-import { uploadReviewImages } from "../../middlewares/upload.js";
+import { uploadReviewImages } from "../../middlewares/upload";
 import {
   showFeedbackForm,
   submitFeedback,
@@ -23,30 +23,30 @@ import {
   showEditForm,
   updateFeedback,
   toggleHideFeedback,
-} from "../../controllers/customer/feedbackController.js";
+} from "../../controllers/customer/feedbackController";
 
-const router = Router();
+const router: Router = Router();
 
 // --- GET: Hiển thị trang chi tiết sản phẩm ---
 router.get("/product/:id", showProductDetail);
 
 // --- GET: Hiển thị form đánh giá (tạo mới) ---
-router.get("/feedback/new", showFeedbackForm);
+router.get("/new", showFeedbackForm);
 router.get("/order/:id/feedback", showFeedbackForm);
 
 // --- POST: Xử lý gửi đánh giá (mới) ---
-router.post("/feedback", uploadReviewImages, submitFeedback);
+router.post("/", uploadReviewImages, submitFeedback);
 
 // --- GET: Xem chi tiết 1 đánh giá ---
-router.get("/feedback/:id", showFeedback);
+router.get("/:id", showFeedback);
 
 // --- GET: Hiển thị form đánh giá (sửa) ---
-router.get("/feedback/:id/edit", showEditForm);
+router.get("/:id/edit", showEditForm);
 
 // --- POST: Cập nhật đánh giá ---
-router.post("/feedback/:id/update", uploadReviewImages, updateFeedback);
+router.post("/:id/update", uploadReviewImages, updateFeedback);
 
 // --- POST: Ẩn đánh giá ---
-router.post("/feedback/:id/toggle-hide", toggleHideFeedback);
+router.post("/:id/toggle-hide", toggleHideFeedback);
 
-export default router;
+export const feedbackRoutes: Router = router;

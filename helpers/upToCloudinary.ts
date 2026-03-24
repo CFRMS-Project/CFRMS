@@ -40,3 +40,28 @@ export const uploadToCloudinary = async (buffer: Buffer): Promise<string> => {
         throw new Error("Lỗi khi upload ảnh lên Cloudinary");
     }
 };
+
+/**
+ * Xóa ảnh khỏi Cloudinary theo URL.
+ * Trích xuất public_id từ URL (bao gồm folder path nếu có).
+ * Ví dụ: https://res.cloudinary.com/demo/image/upload/v123/CFRMS/abc.jpg
+ *   → public_id = "CFRMS/abc"
+ */
+export const deleteFromCloudinary = async (url: string): Promise<void> => {
+    try {
+        // Tách public_id từ URL: lấy phần sau "/upload/v<số>/" và bỏ phần mở rộng
+        const uploadIndex = url.indexOf("/upload/");
+        if (uploadIndex === -1) return;
+
+        const afterUpload = url.substring(uploadIndex + "/upload/".length);
+        // Bỏ qua phiên bản v<số>/ nếu có
+        const withoutVersion = afterUpload.replace(/^v\d+\//, "");
+        // Bỏ phần mở rộng file (.jpg, .png, .webp, ...)
+        const publicId = withoutVersion.replace(/\.[^/.]+$/, "");
+
+        await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        // Ghi log lỗi nhưng không throw để không làm gián đoạn luồng chính
+        console.error("Cloudinary Delete Error (url:", url, "):", error);
+    }
+};

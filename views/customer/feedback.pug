@@ -1,4 +1,4 @@
-extends ../layouts/customer.pug
+extends ../layouts/blank.pug
 
 block content
   - const isEdit = mode === 'edit';
@@ -102,24 +102,30 @@ block content
           div(class='text-center')
             p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-4') Bạn thấy sản phẩm này thế nào?
             input#ratingInput(type='hidden' name='rating' value=initialRating)
+    
+            //- Định nghĩa mảng nhãn tương ứng với 1-5 sao
+            - const ratingLabels = ['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Tuyệt vời'];
+            - const ratingColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-lime-500', 'text-amber-500'];
+
             div#starContainer(class='flex justify-center gap-2 mb-3')
-              each val in [1,2,3,4,5]
-                - const isActive = val <= initialRating;
-                button.star-btn(type='button' data-value=val class='transition-transform hover:scale-110 focus:outline-none')
-                  svg(xmlns='http://www.w3.org/2000/svg' class=`w-10 h-10 ${isActive ? 'text-amber-400' : 'text-slate-200'}` viewBox='0 0 24 24' fill='currentColor')
-                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
-            p#ratingLabel(class='text-sm font-bold')
-              if initialRating > 0
-                span(class='text-amber-500') #{initialRating} sao
-              else
-                span(class='text-slate-400') Nhấn để chọn sao
+                each val in [1,2,3,4,5]
+                    - const isActive = val <= initialRating;
+                    button.star-btn(type='button' data-value=val class='transition-transform hover:scale-110 focus:outline-none')
+                        svg(xmlns='http://www.w3.org/2000/svg' class=`w-10 h-10 ${isActive ? 'text-amber-400' : 'text-slate-200'}` viewBox='0 0 24 24' fill='currentColor')
+                            path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+    
+            p#ratingLabel(class='text-sm font-bold h-5')
+                if initialRating > 0
+                    span(class=ratingColors[initialRating]) #{ratingLabels[initialRating]}
+                else
+                    span(class='text-slate-400') Nhấn để đánh giá
 
           //- Quick Tags
           div
             p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Đánh giá nhanh
             input#tagsInput(type='hidden' name='tags' value=initialTags.join(', '))
             div#tagContainer(class='flex flex-wrap gap-2 justify-center')
-              - const predefined = ['Đúng mô tả', 'Giao hàng nhanh', 'Đóng gói kỹ', 'Chất lượng tuyệt vời', 'Thái độ tốt'];
+              - const predefined = ['Đúng mô tả', 'Giao hàng nhanh', 'Đóng gói kỹ', 'Chất lượng tuyệt vời', 'Thái độ tốt', 'Vừa vặn', 'Chính sách đổi trả tốt'];
               each tag in predefined
                 - const isSelected = initialTags.includes(tag);
                 button.tag-btn(type='button' data-tag=tag class=`px-4 py-2 border-2 rounded-full text-xs font-bold transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600'}`) #{tag}
@@ -179,6 +185,8 @@ block scripts
       var imagePreview = document.getElementById('imagePreview');
 
       // Star rating
+      var ratingLabels = ['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Tuyệt vời'];
+      var ratingColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-lime-500', 'text-amber-500'];
       function setStars(value) {
         ratingInput.value = value;
         stars.forEach(function(btn) {
@@ -193,8 +201,8 @@ block scripts
           }
         });
         ratingLabel.innerHTML = value
-          ? '<span class="text-amber-500">' + value + ' sao</span>'
-          : '<span class="text-slate-400">Nhấn để chọn sao</span>';
+          ? '<span class="' + ratingColors[value] + '">' + ratingLabels[value] + '</span>'
+          : '<span class="text-slate-400">Nhấn để đánh giá</span>';
       }
       stars.forEach(function(star) {
         star.addEventListener('click', function() { setStars(Number(star.dataset.value)); });
@@ -224,10 +232,11 @@ block scripts
         charCount.textContent = contentInput.value.length + '/500';
       });
 
-      // Image preview
+      // Image preview — tích lũy files thay vì ghi đè
       var existingImages    = !{JSON.stringify(initialImages)};
       var removedImagesInput = document.getElementById('removedImages');
       var removedSet        = [];
+      var dt                = new DataTransfer(); // Giữ tất cả files đã chọn
 
       function syncRemoved() {
         removedImagesInput.value = JSON.stringify(removedSet);
@@ -250,26 +259,42 @@ block scripts
       existingImages.forEach(function(url) { renderExistingImage(url); });
 
       imageInput.addEventListener('change', function(e) {
-        var files = Array.from(e.target.files || []);
+        var newFiles = Array.from(e.target.files || []);
         var currentCount = imagePreview.querySelectorAll('img').length;
-        if (currentCount + files.length > 5) {
+        if (currentCount + newFiles.length > 5) {
           alert('Tối đa 5 ảnh (bao gồm ảnh cũ).');
           imageInput.value = '';
           return;
         }
-        files.forEach(function(file) {
+
+        newFiles.forEach(function(file) {
+          dt.items.add(file); // Thêm vào DataTransfer để tích lũy
+
           var reader = new FileReader();
           reader.onload = function() {
             var wrap = document.createElement('div');
             wrap.className = 'relative group';
+            var fileName = file.name;
             wrap.innerHTML =
               '<img src="' + reader.result + '" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200"/>' +
               '<button type="button" class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md">x</button>';
-            wrap.querySelector('.remove-btn').addEventListener('click', function() { wrap.remove(); });
+            wrap.querySelector('.remove-btn').addEventListener('click', function() {
+              // Xóa file khỏi DataTransfer
+              var newDt = new DataTransfer();
+              Array.from(dt.files).forEach(function(f) {
+                if (f.name !== fileName) newDt.items.add(f);
+              });
+              dt = newDt;
+              imageInput.files = dt.files;
+              wrap.remove();
+            });
             imagePreview.appendChild(wrap);
           };
           reader.readAsDataURL(file);
         });
+
+        // Gán lại toàn bộ files tích lũy vào input để Multer nhận được đủ
+        imageInput.files = dt.files;
         syncRemoved();
       });
 
