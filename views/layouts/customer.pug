@@ -1,0 +1,42 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title #{title || 'ShopVN - Phụ Kiện Xa Xỉ'}
+    
+    //- Tailwind CSS
+    script(src="https://cdn.tailwindcss.com")
+    
+    //- Thêm cấu hình Tailwind mở rộng màu sắc nếu cần
+    script.
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#000000',
+            }
+          }
+        }
+      }
+
+    //- Custom CSS (gộp từ inline CSS)
+    link(rel="stylesheet", href="/css/style.css")
+    
+    //- Khối dành cho việc thêm head nội dung tuỳ biến ở các trang con
+    block head
+
+  body(class="bg-white min-h-screen flex flex-col font-sans")
+    
+    //- Header layout
+    include ../customer/header.pug
+    
+    //- Nội dung chính thay đổi theo từng trang
+    main(class="flex-grow")
+      block content
+      
+    //- Footer layout
+    include ../customer/footer.pug
+    
+    //- Khối dành cho script tuỳ biến ở các trang con
+    block scripts

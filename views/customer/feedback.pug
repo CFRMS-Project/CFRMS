@@ -1,0 +1,314 @@
+extends ../layouts/blank.pug
+
+block content
+  - const isEdit = mode === 'edit';
+  - const isView = mode === 'view';
+  - const initialRating = feedback ? feedback.rating : 0;
+  - const initialTags = feedback && feedback.tags ? feedback.tags.split(',').map((t) => t.trim()) : [];
+  - const initialImages = feedback && feedback.reviewMedia ? feedback.reviewMedia.map((m) => m.url) : [];
+  - const initialContent = feedback ? feedback.content : '';
+
+  //- ══════════════════════════════════════════
+  //- MODE: VIEW (Read-only — không có form)
+  //- ══════════════════════════════════════════
+  if isView
+    div(class='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex justify-center items-start py-10 px-4')
+      div(class='bg-white w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden')
+
+        //- Header
+        div(class='bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 flex items-center justify-between')
+          div(class='flex items-center gap-4')
+            a(href='/customer/history' class='text-white/70 hover:text-white transition-colors')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M10 19l-7-7m0 0l7-7m-7 7h18')
+            h2(class='text-white text-lg font-bold tracking-tight') Chi tiết đánh giá
+          a(href=`/feedback/${feedback.id}/edit` class='flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2 rounded-full transition-all')
+            svg(xmlns='http://www.w3.org/2000/svg' class='w-3.5 h-3.5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+              path(stroke-linecap='round' stroke-linejoin='round' d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z')
+            | Chỉnh sửa
+
+        div(class='px-8 py-8')
+          //- User info
+          div(class='flex items-center gap-4 mb-8 pb-6 border-b border-slate-100')
+            div(class='w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg uppercase')
+              | #{feedback.user ? feedback.user.name.charAt(0) : 'U'}
+            div
+              p(class='font-bold text-slate-800 text-base') #{feedback.isAnonymous ? 'Ẩn danh' : (feedback.user ? feedback.user.name : '')}
+              - var d = new Date(feedback.createdAt)
+              - var dateStr = d.getDate().toString().padStart(2,'0') + '/' + (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear()
+              p(class='text-xs text-slate-400 mt-0.5') #{dateStr}
+
+          //- Rating stars
+          div(class='mb-6')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Đánh giá
+            div(class='flex items-center gap-1')
+              each s in [1,2,3,4,5]
+                if s <= initialRating
+                  svg(xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-amber-400' viewBox='0 0 24 24' fill='currentColor')
+                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+                else
+                  svg(xmlns='http://www.w3.org/2000/svg' class='w-7 h-7 text-slate-200' viewBox='0 0 24 24' fill='currentColor')
+                    path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+              span(class='ml-3 text-sm font-bold text-amber-500') #{initialRating}/5 sao
+
+          //- Tags
+          if initialTags.length > 0
+            div(class='mb-6')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Nhận xét nhanh
+              div(class='flex flex-wrap gap-2')
+                each tag in initialTags
+                  span(class='px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200') #{tag}
+
+          //- Content
+          div(class='mb-6')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Nội dung đánh giá
+            div(class='bg-slate-50 rounded-2xl p-5 border border-slate-100')
+              p(class='text-slate-700 text-sm leading-relaxed') #{initialContent}
+
+          //- Images
+          if initialImages.length > 0
+            div(class='mb-6')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Hình ảnh thực tế
+              div(class='flex flex-wrap gap-3')
+                each url in initialImages
+                  div(class='w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 cursor-pointer hover:opacity-80 transition-opacity')
+                    img(src=url alt='Ảnh đánh giá' class='w-full h-full object-cover')
+
+  //- ══════════════════════════════════════════
+  //- MODE: CREATE / EDIT (Form)
+  //- ══════════════════════════════════════════
+  else
+    div(class='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex justify-center items-start py-10 px-4')
+      div(class='bg-white w-full max-w-2xl rounded-3xl shadow-xl overflow-hidden')
+
+        //- Header gradient
+        div(class='bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 flex items-center justify-between')
+          div(class='flex items-center gap-4')
+            a(href='/customer/history' class='text-white/70 hover:text-white transition-colors')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M10 19l-7-7m0 0l7-7m-7 7h18')
+            h2(class='text-white text-lg font-bold tracking-tight')
+              if isEdit
+                | Chỉnh sửa đánh giá
+              else
+                | Viết đánh giá
+          if isEdit
+            a(href='/customer/history' class='text-white/70 hover:text-white text-xs font-bold transition-colors') Quay lại
+
+        //- Form body
+        form#feedbackForm(action=isEdit ? `/feedback/${feedback.id}/update` : '/feedback' method='POST' enctype='multipart/form-data' class='px-8 py-8 space-y-8')
+
+          //- Star Rating
+          div(class='text-center')
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-4') Bạn thấy sản phẩm này thế nào?
+            input#ratingInput(type='hidden' name='rating' value=initialRating)
+    
+            //- Định nghĩa mảng nhãn tương ứng với 1-5 sao
+            - const ratingLabels = ['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Tuyệt vời'];
+            - const ratingColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-lime-500', 'text-amber-500'];
+
+            div#starContainer(class='flex justify-center gap-2 mb-3')
+                each val in [1,2,3,4,5]
+                    - const isActive = val <= initialRating;
+                    button.star-btn(type='button' data-value=val class='transition-transform hover:scale-110 focus:outline-none')
+                        svg(xmlns='http://www.w3.org/2000/svg' class=`w-10 h-10 ${isActive ? 'text-amber-400' : 'text-slate-200'}` viewBox='0 0 24 24' fill='currentColor')
+                            path(d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z')
+    
+            p#ratingLabel(class='text-sm font-bold h-5')
+                if initialRating > 0
+                    span(class=ratingColors[initialRating]) #{ratingLabels[initialRating]}
+                else
+                    span(class='text-slate-400') Nhấn để đánh giá
+
+          //- Quick Tags
+          div
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Đánh giá nhanh
+            input#tagsInput(type='hidden' name='tags' value=initialTags.join(', '))
+            div#tagContainer(class='flex flex-wrap gap-2 justify-center')
+              - const predefined = ['Đúng mô tả', 'Giao hàng nhanh', 'Đóng gói kỹ', 'Chất lượng tuyệt vời', 'Thái độ tốt', 'Vừa vặn', 'Chính sách đổi trả tốt'];
+              each tag in predefined
+                - const isSelected = initialTags.includes(tag);
+                button.tag-btn(type='button' data-tag=tag class=`px-4 py-2 border-2 rounded-full text-xs font-bold transition-all ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600'}`) #{tag}
+
+          //- Textarea
+          div
+            div(class='flex items-center justify-between mb-2')
+              p(class='text-xs font-bold text-slate-400 uppercase tracking-widest') Nội dung đánh giá
+              span#charCount(class='text-xs text-slate-400 font-medium') #{initialContent.length}/500
+            textarea#contentInput(name='content' rows='4' maxlength='500' placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm...' class='w-full border-2 border-slate-200 rounded-2xl p-4 text-sm text-slate-700 focus:outline-none focus:border-blue-400 resize-none transition-colors') #{initialContent}
+
+          //- Image Upload
+          div
+            p(class='text-xs font-bold text-slate-400 uppercase tracking-widest mb-3') Hình ảnh thực tế
+            input#removedImages(type='hidden' name='removedImages' value='[]')
+            div#imagePreview(class='flex flex-wrap gap-3 mb-3')
+            label(for='imageInput' class='inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-2xl text-xs font-bold text-slate-500 hover:text-blue-600 transition-all')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2')
+                path(stroke-linecap='round' stroke-linejoin='round' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z')
+              | Chọn ảnh (tối đa 5)
+            input#imageInput(type='file' name='images' multiple accept='image/jpeg,image/jpg,image/png' class='hidden')
+            p(class='text-xs text-slate-400 mt-2') Hỗ trợ: JPG, JPEG, PNG — tối đa 10MB mỗi ảnh
+
+          //- Anonymous toggle
+          div(class='flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100')
+            input#isAnonymous(type='checkbox' name='isAnonymous' value='on' class='w-4 h-4 accent-blue-600 cursor-pointer' checked=feedback && feedback.isAnonymous)
+            label(for='isAnonymous' class='text-sm font-medium text-slate-700 cursor-pointer') Đánh giá ẩn danh (tên sẽ được che)
+
+          //- Submit
+          div(class='flex justify-end gap-3')
+            a(href='/customer/history' class='px-6 py-3 rounded-full border-2 border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition-all') Hủy
+            button(type='submit' class='px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded-full shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2.5')
+                if isEdit
+                  path(stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7')
+                else
+                  path(stroke-linecap='round' stroke-linejoin='round' d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8')
+              if isEdit
+                | Cập nhật
+              else
+                | Gửi đánh giá
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      var feedbackForm = document.getElementById('feedbackForm');
+      if (!feedbackForm) return;
+
+      var stars        = document.querySelectorAll('.star-btn');
+      var ratingInput  = document.getElementById('ratingInput');
+      var ratingLabel  = document.getElementById('ratingLabel');
+      var contentInput = document.getElementById('contentInput');
+      var charCount    = document.getElementById('charCount');
+      var tagButtons   = document.querySelectorAll('.tag-btn');
+      var tagsInput    = document.getElementById('tagsInput');
+      var imageInput   = document.getElementById('imageInput');
+      var imagePreview = document.getElementById('imagePreview');
+
+      // Star rating
+      var ratingLabels = ['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Tuyệt vời'];
+      var ratingColors = ['', 'text-red-500', 'text-orange-500', 'text-yellow-500', 'text-lime-500', 'text-amber-500'];
+      function setStars(value) {
+        ratingInput.value = value;
+        stars.forEach(function(btn) {
+          var svg = btn.querySelector('svg');
+          var v   = Number(btn.dataset.value);
+          if (v <= value) {
+            svg.classList.remove('text-slate-200');
+            svg.classList.add('text-amber-400');
+          } else {
+            svg.classList.add('text-slate-200');
+            svg.classList.remove('text-amber-400');
+          }
+        });
+        ratingLabel.innerHTML = value
+          ? '<span class="' + ratingColors[value] + '">' + ratingLabels[value] + '</span>'
+          : '<span class="text-slate-400">Nhấn để đánh giá</span>';
+      }
+      stars.forEach(function(star) {
+        star.addEventListener('click', function() { setStars(Number(star.dataset.value)); });
+      });
+
+      // Tags
+      var initialTagsJS = !{JSON.stringify(initialTags)};
+      tagButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tag  = btn.dataset.tag;
+          var tags = tagsInput.value.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+          if (tags.indexOf(tag) !== -1) {
+            tags.splice(tags.indexOf(tag), 1);
+            btn.classList.remove('bg-blue-600', 'border-blue-600', 'text-white');
+            btn.classList.add('border-slate-200', 'text-slate-600');
+          } else {
+            tags.push(tag);
+            btn.classList.add('bg-blue-600', 'border-blue-600', 'text-white');
+            btn.classList.remove('border-slate-200', 'text-slate-600');
+          }
+          tagsInput.value = tags.join(', ');
+        });
+      });
+
+      // Char count
+      contentInput.addEventListener('input', function() {
+        charCount.textContent = contentInput.value.length + '/500';
+      });
+
+      // Image preview — tích lũy files thay vì ghi đè
+      var existingImages    = !{JSON.stringify(initialImages)};
+      var removedImagesInput = document.getElementById('removedImages');
+      var removedSet        = [];
+      var dt                = new DataTransfer(); // Giữ tất cả files đã chọn
+
+      function syncRemoved() {
+        removedImagesInput.value = JSON.stringify(removedSet);
+      }
+
+      function renderExistingImage(url) {
+        var wrap = document.createElement('div');
+        wrap.className = 'relative group';
+        wrap.innerHTML =
+          '<img src="' + url + '" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200"/>' +
+          '<button type="button" class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md">x</button>';
+        wrap.querySelector('.remove-btn').addEventListener('click', function() {
+          removedSet.push(url);
+          wrap.remove();
+          syncRemoved();
+        });
+        imagePreview.appendChild(wrap);
+      }
+
+      existingImages.forEach(function(url) { renderExistingImage(url); });
+
+      imageInput.addEventListener('change', function(e) {
+        var newFiles = Array.from(e.target.files || []);
+        var currentCount = imagePreview.querySelectorAll('img').length;
+        if (currentCount + newFiles.length > 5) {
+          alert('Tối đa 5 ảnh (bao gồm ảnh cũ).');
+          imageInput.value = '';
+          return;
+        }
+
+        newFiles.forEach(function(file) {
+          dt.items.add(file); // Thêm vào DataTransfer để tích lũy
+
+          var reader = new FileReader();
+          reader.onload = function() {
+            var wrap = document.createElement('div');
+            wrap.className = 'relative group';
+            var fileName = file.name;
+            wrap.innerHTML =
+              '<img src="' + reader.result + '" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200"/>' +
+              '<button type="button" class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md">x</button>';
+            wrap.querySelector('.remove-btn').addEventListener('click', function() {
+              // Xóa file khỏi DataTransfer
+              var newDt = new DataTransfer();
+              Array.from(dt.files).forEach(function(f) {
+                if (f.name !== fileName) newDt.items.add(f);
+              });
+              dt = newDt;
+              imageInput.files = dt.files;
+              wrap.remove();
+            });
+            imagePreview.appendChild(wrap);
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // Gán lại toàn bộ files tích lũy vào input để Multer nhận được đủ
+        imageInput.files = dt.files;
+        syncRemoved();
+      });
+
+      // Form validation
+      feedbackForm.addEventListener('submit', function(e) {
+        if (!Number(ratingInput.value) || Number(ratingInput.value) < 1) {
+          e.preventDefault();
+          alert('Vui lòng chọn số sao!');
+          return;
+        }
+        if (!contentInput.value.trim()) {
+          e.preventDefault();
+          alert('Vui lòng nhập nội dung đánh giá!');
+          return;
+        }
+      });
+    });

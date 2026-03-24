@@ -6,52 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        Int        @id @default(autoincrement())
-  name      String
-  email     String?    @unique
-  username  String     @unique
-  password  String
-  avatar    String?
-  role      RoleEnum   @default(CUSTOMER)
-  feedbacks Feedback[]
-  Reply     Reply[]
-}
-
-model Feedback {
-  id          Int           @id @default(autoincrement())
-  rating      Int
-  content     String
-  tags        String?
-  isAnonymous Boolean       @default(false)
-  isDeleted   Boolean       @default(false)
-  status      StatusEnum    @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
-  Reply       Reply?
-  ReviewMedia ReviewMedia[]
-}
-
-model Reply {
-  id         Int      @id @default(autoincrement())
-  content    String
-  createdAt  DateTime @default(now())
-  feedbackId Int      @unique
-  adminId    Int
-  User       User     @relation(fields: [adminId], references: [id])
-  Feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-}
-
-model ReviewMedia {
-  id         Int       @id @default(autoincrement())
-  url        String
-  type       MediaType @default(IMAGE)
-  feedbackId Int
-  Feedback   Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-}
-
 enum RoleEnum {
   ADMIN
   CUSTOMER
@@ -66,4 +20,62 @@ enum StatusEnum {
 enum MediaType {
   IMAGE
   VIDEO
+}
+
+ //--- Models ---
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String?     @unique
+  username  String     @unique
+  password  String
+  avatar    String?    // Đồng bộ: Lưu URL ảnh đại diện
+  role      RoleEnum   @default(CUSTOMER)
+  
+  feedbacks Feedback[] 
+  replies   Reply[]    
+}
+
+model Feedback {
+  id          Int           @id @default(autoincrement())
+  rating      Int
+  content     String        @db.Text
+  tags        String?       // Đồng bộ: Lưu "Đúng mô tả", "Giao nhanh"...
+  isAnonymous Boolean       @default(false)
+  isDeleted   Boolean       @default(false)
+  status      StatusEnum    @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Quan hệ với User
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  
+  // Quan hệ với Media
+  reviewMedia ReviewMedia[] 
+  
+  // Quan hệ với Reply (1-1)
+  reply       Reply?        
+}
+
+model ReviewMedia {
+  id         Int       @id @default(autoincrement())
+  url        String
+  type       MediaType @default(IMAGE)
+  
+  feedbackId Int
+  feedback   Feedback  @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+}
+
+model Reply {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  feedbackId Int      @unique
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  adminId    Int
+  admin      User     @relation(fields: [adminId], references: [id])
 }
