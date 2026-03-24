@@ -1,8 +1,8 @@
-// @ts-nocheck
-import "dotenv/config";
-import { defineConfig } from "prisma/config";
+// Thay đổi nội dung prisma.config.js thành thế này:
+require("dotenv/config");
+const { defineConfig } = require("prisma/config");
 
-export default defineConfig({
+module.exports = defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
