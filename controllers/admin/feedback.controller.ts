@@ -38,13 +38,13 @@ export const index = async (req: Request, res: Response) => {
     ...(selectedStatus ? { status: selectedStatus } : {}),
     ...(q
       ? {
-          OR: [
-            { content: { contains: q, mode: "insensitive" } },
-            { tags: { contains: q, mode: "insensitive" } },
-            { user: { is: { name: { contains: q, mode: "insensitive" } } } },
-            { user: { is: { username: { contains: q, mode: "insensitive" } } } }
-          ]
-        }
+        OR: [
+          { content: { contains: q, mode: "insensitive" } },
+          { tags: { contains: q, mode: "insensitive" } },
+          { user: { is: { name: { contains: q, mode: "insensitive" } } } },
+          { user: { is: { username: { contains: q, mode: "insensitive" } } } }
+        ]
+      }
       : {})
   };
 
@@ -78,8 +78,8 @@ export const index = async (req: Request, res: Response) => {
       where: whereBase,
       include: {
         user: { select: { id: true, name: true, avatar: true, username: true } },
-        ReviewMedia: { take: 2, orderBy: { id: "asc" } },
-        Reply: true
+        reviewMedia: { take: 2, orderBy: { id: "asc" } },
+        reply: true
       },
       orderBy: { createdAt: "desc" },
       skip,
