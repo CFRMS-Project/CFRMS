@@ -1,34 +1,21 @@
-/**
- * =============================================================
- * Entry Point: Express Server Configuration
- * =============================================================
- * Cấu hình:
- *   - View Engine: Pug
- *   - Static Files: public/
- *   - Session: express-session
- *   - Routes: Auth, Customer Feedback, Admin
- * =============================================================
- */
-
-import "dotenv/config";
-import express from "express";
+import dotenv from "dotenv"
+dotenv.config()
+import express, { Express, Request, Response } from "express"
 import session from "express-session";
-import path from "path";
-import authRoutes from "./routes/authRoutes.js";
-import clientRoutes from "./routes/customer/index.route.js";
 
-import { requireLogin, requireRole } from "./middlewares/auth.js";
-import prisma from "./utils/db.js";
+import authRoutes from "./routes/authRoutes";
+import clientRoutes from "./routes/customer/index.route";
+import adminRoutes from "./routes/admin/index.route"
+import { requireLogin } from "./middlewares/auth";
+import prisma from "./utils/db";
 
-const app = express();
+const app: Express = express()
 const PORT = process.env["PORT"] || 3000;
 
-// --- Cấu hình View Engine ---
-app.set("view engine", "pug");
-app.set("views", path.join(process.cwd(), "views"));
+app.set("view engine", "pug")
+app.set("views", `${__dirname}/views`);
 
-// --- Cấu hình Static Files ---
-app.use(express.static(path.join(process.cwd(), "public")));
+app.use(express.static(`${__dirname}/public`));
 
 // --- Cấu hình Body Parser ---
 app.use(express.urlencoded({ extended: true }));
@@ -57,11 +44,8 @@ app.get("/", (_req, res) => {
 
 // --- Routes Customer ---
 clientRoutes(app);
+adminRoutes(app)
 
-// --- Routes Admin (cần đăng nhập + role ADMIN) ---
-app.get("/admin/dashboard", requireRole("ADMIN"), (_req, res) => {
-  res.render("admin/dashboard");
-});
 
 // --- Khởi động Server ---
 app.listen(PORT, () => {
@@ -69,3 +53,4 @@ app.listen(PORT, () => {
   console.log(`Trang đăng nhập: http://localhost:${PORT}/login`);
 });
 
+=

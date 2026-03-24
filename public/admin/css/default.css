@@ -1,0 +1,29 @@
+/* === DEFAULT LAYOUT STYLES === */
+
+/* Font chung */
+body {
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* Sidebar cố định, full chiều cao màn hình */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 17.5rem;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Main content cuộn được, chiếm hết chiều cao */
+.main-content {
+  margin-left: 17.5rem;
+  background-color: #F6F6F8;
+  height: 100vh;
+  overflow-y: auto;
+  flex-grow: 1;
+}

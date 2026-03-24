@@ -4,10 +4,12 @@
     // File Layout
     "rootDir": "./",
     "outDir": "./dist",
+
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "CommonJS",
     "target": "esnext",
+
     // For nodejs:
     "lib": [
       "esnext"
@@ -15,11 +17,13 @@
     "types": [
       "node"
     ],
+
     // and npm install -D @types/node
     // Other Outputs
     "sourceMap": true,
     "declaration": false,
     "declarationMap": false,
+
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -40,5 +44,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "removeComments": true, //Xóa comments khi biên dịch sang js
+
   }
 }
