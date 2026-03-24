@@ -1,0 +1,74 @@
+//- Sidebar partial - Thanh điều hướng bên trái
+aside.sidebar.w-70.bg-white.border-r.border-gray-100.p-6.flex.flex-col
+  // Header Logo & Tiêu đề thương hiệu
+  div.flex.items-center.gap-3.mb-10
+    // Biểu tượng khiên màu xanh dương với kim cương
+    div.w-12.h-12.rounded-2xl.bg-blue-600.flex.items-center.justify-center.text-white.flex-shrink-0
+      +iconShield()
+    div
+      h1.text-xl.font-bold.text-gray-900 Admin
+      p.text-xs.text-gray-500.tracking-wider.font-medium MODERATION
+
+  // Danh sách điều hướng chính
+  nav.flex-grow
+    ul.space-y-2
+      // Mục 1: Tổng quan
+      li
+        a(href="/admin/dashboard", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'dashboard' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+          +iconDashboard()
+          span Tổng quan
+
+      // Mục 2: Sản phẩm
+      li
+        a(href="/admin/products", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'products' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+          +iconProducts()
+          span Sản phẩm
+
+      // Mục 3: Đơn hàng
+      li
+        a(href="/admin/orders", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'orders' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+          +iconOrders()
+          span Đơn hàng
+
+      // Mục 4: Đánh giá
+      li
+        a(href="/admin/feedbacks", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'reviews' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+          +iconReviews()
+          span Đánh giá
+
+      // Mục 5: Phản hồi
+      li
+        a(href="/admin/feedbacks", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'feedbacks' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+          +iconFeedbacks()
+          span Phản hồi
+
+  // Đường kẻ ngang ngăn cách
+  hr.border-gray-200.my-6
+
+  // Danh sách điều hướng phụ
+  ul.space-y-2
+    // Kiểm duyệt
+    li
+      a(href="/admin/moderation", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'moderation' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+        +iconShield("h-5 w-5")
+        span Kiểm duyệt
+
+    // Cấu hình
+    li
+      a(href="/admin/settings", class=`flex items-center gap-3 p-3 rounded-xl ${activePage === 'settings' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`)
+        +iconSettings()
+        span Cấu hình
+
+  // --- USER PROFILE BLOCK (ĐẨY XUỐNG DƯỚI CÙNG) ---
+  div.mt-auto
+    div.bg-gray-50.p-4.rounded-2xl.flex.items-center.gap-3.border.border-gray-100
+      // Ảnh đại diện (Hình tròn, nền cam nhạt)
+      div.w-12.h-12.rounded-full.bg-orange-100.flex.items-center.justify-center.text-orange-500.flex-shrink-0
+        +iconUser()
+      // Thông tin tên và vai trò
+      div
+        p.font-bold.text-gray-900.line-clamp-1 Đặng Công Quân
+        p.text-xs.text-gray-500.font-medium Quản trị viên
+      // Biểu tượng đăng xuất
+      a(href="/auth/logout", class="ml-auto text-gray-400 hover:text-blue-600", title="Đăng xuất")
+        +iconLogout()
