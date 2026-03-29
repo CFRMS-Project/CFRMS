@@ -136,6 +136,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const btnDeleteModal = document.getElementById("modal-btn-delete");
+  if (btnDeleteModal) {
+    btnDeleteModal.addEventListener("click", () => {
+      if (!currentFeedbackId) return;
+      if (confirm("Bạn có chắc chắn muốn xóa (ẩn hoàn toàn) đánh giá vi phạm này không?")) {
+        fetch(`/admin/feedbacks/delete/${currentFeedbackId}`, {
+          method: 'DELETE',
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.code === 200) window.location.reload();
+          else alert(data.message || "Lỗi xóa đánh giá");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Lỗi kết nối khi xóa");
+        });
+      }
+    });
+  }
+
   // 5. Hàm mở / render Modal
   function openFeedbackModal(id) {
     currentFeedbackId = id; // Lưu ID hiện tại
@@ -209,14 +230,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Button states
     const btnApproveModal = document.getElementById("modal-btn-reply");
     const btnHideModal = document.getElementById("modal-btn-hide");
+    const btnDelModal = document.getElementById("modal-btn-delete");
     
-    btnApproveModal.style.display = "flex";
-    btnHideModal.style.display = "flex";
+    if(btnApproveModal) btnApproveModal.style.display = "flex";
+    if(btnHideModal) btnHideModal.style.display = "flex";
+    if(btnDelModal) btnDelModal.style.display = "flex";
 
     if (data.status === "APPROVED") {
-      btnApproveModal.style.display = "none";
+      if(btnApproveModal) btnApproveModal.style.display = "none";
     } else if (data.status === "REJECTED") {
-      btnHideModal.style.display = "none";
+      if(btnHideModal) btnHideModal.style.display = "none";
     }
   }
 });

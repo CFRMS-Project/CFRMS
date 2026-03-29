@@ -199,6 +199,11 @@ export const changeMulti = async (req: Request, res: Response) => {
         where: { id: { in: numIds } },
         data: { status: StatusEnum.APPROVED }
       });
+    } else if (action === "delete") {
+      await prisma.feedback.updateMany({
+        where: { id: { in: numIds } },
+        data: { isDeleted: true }
+      });
     } else {
       return res.status(400).json({ code: 400, message: "Hành động không được hỗ trợ" });
     }
@@ -206,6 +211,28 @@ export const changeMulti = async (req: Request, res: Response) => {
     res.json({ code: 200, message: "Cập nhật thành công" });
   } catch (error) {
     console.error("Error changeMulti:", error);
+    res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
+  }
+};
+
+/**
+ * [XÓA ĐÁNH GIÁ VI PHẠM]
+ */
+export const deleteItem = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(String(req.params.id));
+    if (isNaN(id)) {
+      return res.status(400).json({ code: 400, message: "ID không hợp lệ" });
+    }
+
+    await prisma.feedback.update({
+      where: { id },
+      data: { isDeleted: true }
+    });
+
+    res.json({ code: 200, message: "Xóa thành công!" });
+  } catch (error) {
+    console.error("Error deleteItem:", error);
     res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
   }
 };
