@@ -145,7 +145,7 @@ block content
         
     div(class='px-5 border-b border-gray-100 flex justify-between items-center')
       div(class='flex gap-8 text-sm overflow-x-auto')
-        a(class=`py-4 whitespace-nowrap ${currentTab === 'pending' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=pending&q=${encodeURIComponent(safeQuery)}`) Chưa xử lý (#{pendingCount || 45})
+        a(class=`py-4 whitespace-nowrap ${currentTab === 'pending' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=pending&q=${encodeURIComponent(safeQuery)}`) Chưa xử lý (#{pendingCount || 0})
         a(class=`py-4 whitespace-nowrap ${currentTab === 'approved' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=approved&q=${encodeURIComponent(safeQuery)}`) Đã xử lý (#{approvedCount || 0})
         a(class=`py-4 whitespace-nowrap ${currentTab === 'rejected' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=rejected&q=${encodeURIComponent(safeQuery)}`) Bị từ chối (#{rejectedCount || 0})
         a(class=`py-4 whitespace-nowrap ${currentTab === 'all' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=all&q=${encodeURIComponent(safeQuery)}`) Tất cả (#{allCount || 0})
