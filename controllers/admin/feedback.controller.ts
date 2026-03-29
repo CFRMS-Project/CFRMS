@@ -81,7 +81,7 @@ export const index = async (req: Request, res: Response) => {
       where: whereBase,
       include: {
         user: { select: { id: true, name: true, avatar: true, username: true } },
-        reviewMedia: { take: 2, orderBy: { id: "asc" } },
+        reviewMedia: { take: 5, orderBy: { id: "asc" } },
         reply: true
       },
       orderBy: { createdAt: orderByDirection },
