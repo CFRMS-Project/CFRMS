@@ -16,6 +16,7 @@ const prisma = new PrismaClient({ adapter });
 export const index = async (req: Request, res: Response) => {
   const q = String(req.query.q || "").trim();
   const tab = String(req.query.tab || "pending");
+  const sort = String(req.query.sort || "desc");
   const { page, limit, skip } = parsePagination({
     pageQuery: req.query.page,
     defaultLimit: 10,
@@ -53,6 +54,8 @@ export const index = async (req: Request, res: Response) => {
   const endToday = new Date();
   endToday.setHours(23, 59, 59, 999);
 
+  const orderByDirection = sort === "asc" ? "asc" : "desc";
+
   const [
     pendingCount,
     approvedCount,
@@ -81,7 +84,7 @@ export const index = async (req: Request, res: Response) => {
         reviewMedia: { take: 2, orderBy: { id: "asc" } },
         reply: true
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: orderByDirection },
       skip,
       take: limit
     })
@@ -94,8 +97,115 @@ export const index = async (req: Request, res: Response) => {
     pageTitle: "Danh sách phản hồi",
     stats: { pendingCount, approvedTodayCount, violationRate },
     tabCounts: { pending: pendingCount, approved: approvedCount, rejected: rejectedCount, all: allCount },
-    filters: { q, tab: normalizedTab, page: paginationMeta.page, limit },
+    filters: { q, tab: normalizedTab, sort, page: paginationMeta.page, limit },
     pagination: paginationMeta,
     feedbacks: rows
   });
+};
+
+export const detail = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(String(req.params.id));
+    if (isNaN(id)) {
+      return res.status(400).json({ code: 400, message: "ID đánh giá không hợp lệ" });
+    }
+
+    const feedback = await prisma.feedback.findUnique({
+      where: { id: id },
+      include: {
+        user: { select: { id: true, name: true, avatar: true, username: true } },
+        reviewMedia: true,
+        reply: true
+      }
+    });
+
+    if (!feedback) {
+      return res.status(404).json({ code: 404, message: "Không tìm thấy đánh giá" });
+    }
+
+    // Enhance payload with fake price and product as requested
+    const responseData = {
+      ...feedback,
+      product: {
+        name: "Nhẫn Kim Cương Luxury Elite",
+        fakePrice: "250.000.000đ"
+      }
+    };
+
+    res.json({ code: 200, data: responseData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
+  }
+};
+
+export const changeStatus = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(String(req.params.id));
+    const statusStr = String(req.params.status).toUpperCase();
+    const reply = req.body.reply || "";
+
+    if (isNaN(id) || !["APPROVED", "REJECTED"].includes(statusStr)) {
+      return res.status(400).json({ code: 400, message: "Dữ liệu không hợp lệ" });
+    }
+
+    const updateData: any = { status: statusStr as StatusEnum };
+
+    // Update feedback status
+    const feedback = await prisma.feedback.update({
+      where: { id },
+      data: updateData
+    });
+
+    // If there is a reply, upsert the reply record
+    if (reply && reply.trim() !== "") {
+      const existingReply = await prisma.reply.findFirst({
+        where: { feedbackId: id }
+      });
+      if (existingReply) {
+        await prisma.reply.update({
+          where: { id: existingReply.id },
+          data: { content: reply }
+        });
+      } else {
+        await prisma.reply.create({
+          data: {
+            content: reply,
+            feedbackId: id,
+            adminId: res.locals.user?.id || 1 // default fallback
+          }
+        });
+      }
+    }
+
+    res.json({ code: 200, message: "Cập nhật trạng thái thành công" });
+  } catch (error) {
+    console.error("Error changeStatus:", error);
+    res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
+  }
+};
+
+export const changeMulti = async (req: Request, res: Response) => {
+  try {
+    const { action, ids } = req.body;
+    if (!action || !ids || !Array.isArray(ids)) {
+      return res.status(400).json({ code: 400, message: "Dữ liệu không hợp lệ" });
+    }
+
+    const numIds = ids.map((id: any) => parseInt(id)).filter(id => !isNaN(id));
+
+    if (action === "approve") {
+      await prisma.feedback.updateMany({
+        where: { id: { in: numIds } },
+        data: { status: StatusEnum.APPROVED }
+      });
+    } else {
+      return res.status(400).json({ code: 400, message: "Hành động không được hỗ trợ" });
+    }
+
+    res.json({ code: 200, message: "Cập nhật thành công" });
+  } catch (error) {
+    console.error("Error changeMulti:", error);
+    res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
+  }
 };

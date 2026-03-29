@@ -1,6 +1,9 @@
 /* === DEFAULT LAYOUT STYLES === */
 
 /* Font chung */
+html {
+  font-size: 90%;
+}
 body {
   font-family: 'Inter', sans-serif;
   height: 100vh;
