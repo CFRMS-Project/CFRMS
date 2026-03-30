@@ -3,6 +3,7 @@ const router: Router = Router()
 import * as controller from "../../controllers/admin/feedback.controller"
 router.get("/", controller.index)
 
+router.get("/export", controller.exportCsv)   // phải trước /detail/:id
 router.get("/detail/:id", controller.detail)
 
 router.patch("/change-status/:status/:id", controller.changeStatus)

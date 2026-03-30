@@ -117,7 +117,7 @@ block content
           path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4')
       div
         p(class='text-sm font-semibold text-gray-500 mb-1') Đang chờ duyệt
-        h3(class='text-3xl font-bold text-gray-900')= (stats && stats.pendingCount) ? stats.pendingCount : 128
+        h3(class='text-3xl font-bold text-gray-900')= (stats != null && stats.pendingCount != null) ? stats.pendingCount.toLocaleString('vi-VN') : 0
 
     div(class='bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5')
       div(class='w-14 h-14 rounded-2xl card-icon-approved flex items-center justify-center')
@@ -125,7 +125,7 @@ block content
           path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z')
       div
         p(class='text-sm font-semibold text-gray-500 mb-1') Đã duyệt hôm nay
-        h3(class='text-3xl font-bold text-gray-900')= (stats && stats.approvedTodayCount) ? stats.approvedTodayCount : '1,450'
+        h3(class='text-3xl font-bold text-gray-900')= (stats != null && stats.approvedTodayCount != null) ? stats.approvedTodayCount.toLocaleString('vi-VN') : 0
 
     div(class='bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5')
       div(class='w-14 h-14 rounded-2xl card-icon-violation flex items-center justify-center')
@@ -133,7 +133,7 @@ block content
           path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z')
       div
         p(class='text-sm font-semibold text-gray-500 mb-1') Tỉ lệ vi phạm
-        h3(class='text-3xl font-bold text-gray-900')= `${Number((stats && stats.violationRate) ? stats.violationRate : 2.4).toFixed(1)}%`
+        h3(class='text-3xl font-bold text-gray-900')= `${(stats != null && stats.violationRate != null) ? Number(stats.violationRate).toFixed(1) : '0.0'}%`
 
   //- 3. BẢNG KIỂM DUYỆT
   div(class='bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden pt-8 pb-10 min-h-[500px]')
@@ -141,7 +141,10 @@ block content
       h2(class='text-xl font-bold text-gray-900') Danh sách kiểm duyệt đánh giá
       div(class='flex gap-3 feedbacks-actions')
         button(id='btn-bulk-approve' class='btn btn-sm h-10 px-5 border-none text-white hover:opacity-90 font-medium shadow-sm transition-all' style='background-color:#3B82F6; border-radius: 9999px;' type='button') Duyệt hàng loạt
-        button(class='btn btn-sm h-10 px-5 border-none font-medium shadow-sm hover:bg-gray-200 hover:shadow-md transition-all' style='background-color:#FFFFFF; color: #000000; border-radius: 9999px;' type='button') Xuất báo cáo
+        a(href=`/admin/feedbacks/export?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=${currentSort}` class='btn btn-sm h-10 px-5 border-none font-medium shadow-sm hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2' style='background-color:#FFFFFF; color: #000000; border-radius: 9999px;' download)
+          svg(xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-gray-500' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+            path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4')
+          | Xuất CSV
         
     div(class='px-5 border-b border-gray-100 flex justify-between items-center')
       div(class='flex gap-8 text-sm overflow-x-auto')
@@ -240,9 +243,8 @@ block content
                 path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7')
 
   //- 5. MODAL CHI TIẾT ĐÁNH GIÁ (Ẩn mặc định)
-  div(id='feedback-detail-modal' class='fixed inset-0 z-50 hidden' style='background-color: rgba(0,0,0,0.4)')
-    div(class='flex items-center justify-center min-h-screen p-4')
-      div(class='bg-white rounded-[20px] w-full max-w-[580px] shadow-2xl flex flex-col' style='max-height: 90vh')
+  div(id='feedback-detail-modal' class='fixed inset-0 z-50 hidden flex items-center justify-center p-4' style='background-color: rgba(0,0,0,0.45); backdrop-filter: blur(4px);')
+    div(class='bg-white w-full shadow-2xl flex flex-col' style='border-radius: 20px; max-width: 580px; max-height: 90vh;')
         //- Header (cố định)
         div(class='flex items-center justify-between px-7 py-5 border-b border-gray-100 flex-shrink-0')
           h3(class='text-[16px] font-bold flex items-center gap-2.5 text-gray-900')
@@ -256,15 +258,16 @@ block content
         //- Body (scroll được)
         div(class='overflow-y-auto flex-1 px-7 py-6')
           //- 2 Card: User + Product
-          div(class='flex gap-4 mb-7')
-            div(class='flex-1 border border-gray-100 rounded-2xl px-5 py-4 flex items-center gap-4')
-              img(id='modal-user-avatar' class='w-12 h-12 rounded-full object-cover bg-gray-200' src='')
-              div(class='font-bold text-gray-900 text-[15px]' id='modal-user-name')
-            div(class='flex-1 border border-gray-100 rounded-2xl px-5 py-4 flex items-center gap-4')
-              img(id='modal-product-img' class='w-12 h-12 rounded-full object-cover bg-gray-200' src='')
-              div
-                div(class='font-bold text-gray-900 text-[15px] leading-snug' id='modal-product-name')
-                div(class='text-blue-500 font-medium text-[14px] mt-0.5' id='modal-product-price')
+          div(class='flex gap-3 mb-6')
+            div(class='flex-1 min-w-0 border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3')
+              img(id='modal-user-avatar' class='w-10 h-10 flex-shrink-0 rounded-full object-cover bg-gray-200' src='')
+              div(class='min-w-0')
+                div(class='font-bold text-gray-900 text-[14px] truncate' id='modal-user-name')
+            div(class='flex-1 min-w-0 border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3')
+              img(id='modal-product-img' class='w-10 h-10 flex-shrink-0 rounded-full object-cover bg-gray-200' src='')
+              div(class='min-w-0')
+                div(class='font-bold text-gray-900 text-[14px] truncate leading-snug' id='modal-product-name')
+                div(class='text-blue-500 font-medium text-[13px] mt-0.5 truncate' id='modal-product-price')
           
           //- Rating + Date
           div(class='mb-6')
@@ -305,19 +308,23 @@ block content
               | Phản hồi sẽ được hiển thị công khai trên trang chi tiết sản phẩm sau khi duyệt.
               
         //- Footer (cố định)
-        div(class='px-7 py-5 border-t border-gray-100 bg-white flex justify-between items-center rounded-b-[20px] flex-shrink-0')
+        div(class='px-7 py-5 border-t border-gray-100 bg-white flex justify-between items-center flex-shrink-0' style='border-radius: 0 0 20px 20px;')
           button(class='font-semibold text-gray-600 hover:text-gray-900 modal-close-btn transition-colors text-[14px]' type='button') Đóng
           div(class='flex gap-2.5')
-            button(id='modal-btn-delete' class='px-4 py-2.5 rounded-full border border-red-500 bg-red-50 text-red-600 font-semibold text-[13px] hover:bg-red-500 hover:text-white flex items-center gap-1.5 transition-colors')
+            //- Nút Ẩn đánh giá (đặt REJECTED) - hiển thị khi PENDING hoặc APPROVED
+            button(id='modal-btn-hide' class='px-4 py-2.5 rounded-full border border-pink-300 bg-pink-50 text-pink-600 font-semibold text-[13px] hover:bg-pink-100 hover:border-pink-400 flex items-center gap-1.5 transition-colors')
               svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
-                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16')
-              | Xóa vi phạm
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636')
+              | Ẩn đánh giá
             
-            button(id='modal-btn-hide' class='px-4 py-2.5 rounded-full border border-orange-300 bg-white text-orange-500 font-semibold text-[13px] hover:bg-orange-50 flex items-center gap-1.5 transition-colors')
-              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
-                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21')
-              | Ẩn
+            //- Nút Duyệt & Gửi phản hồi - hiển thị khi PENDING hoặc REJECTED
             button(id='modal-btn-reply' class='px-4 py-2.5 rounded-full bg-blue-600 text-white font-semibold text-[13px] hover:bg-blue-700 flex items-center gap-1.5 shadow-md transition-all')
               svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
                 path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z')
               | Duyệt & Gửi phản hồi
+            
+            //- Nút Sửa phản hồi - chỉ hiển thị khi APPROVED
+            button(id='modal-btn-edit-reply' class='px-4 py-2.5 rounded-full bg-blue-600 text-white font-semibold text-[13px] hover:bg-blue-700 flex items-center gap-1.5 shadow-md transition-all hidden')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z')
+              | Sửa phản hồi
