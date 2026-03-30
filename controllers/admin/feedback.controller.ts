@@ -90,7 +90,7 @@ export const index = async (req: Request, res: Response) => {
     })
   ]);
 
-  const violationRate = totalCount ? (rejectedCount / totalCount) * 100 : 0;
+  const violationRate = allCount ? (rejectedCount / allCount) * 100 : 0;
   const paginationMeta = buildPaginationMeta(totalCount, page, limit);
 
   res.render("admin/pages/feedbacks/index", {
@@ -234,5 +234,91 @@ export const deleteItem = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleteItem:", error);
     res.status(500).json({ code: 500, message: "Lỗi máy chủ" });
+  }
+};
+
+/**
+ * [XUẤT BÁO CÁO CSV]
+ * Xuất toàn bộ feedback theo filter (tab, q, sort) dạng file CSV
+ */
+export const exportCsv = async (req: Request, res: Response) => {
+  try {
+    const q = String(req.query.q || "").trim();
+    const tab = String(req.query.tab || "all");
+    const sort = String(req.query.sort || "desc");
+
+    const statusMap: Record<string, StatusEnum | undefined> = {
+      pending: StatusEnum.PENDING,
+      approved: StatusEnum.APPROVED,
+      rejected: StatusEnum.REJECTED,
+      all: undefined
+    };
+
+    const normalizedTab = Object.prototype.hasOwnProperty.call(statusMap, tab) ? tab : "all";
+    const selectedStatus = statusMap[normalizedTab];
+
+    const whereBase: any = {
+      isDeleted: false,
+      ...(selectedStatus ? { status: selectedStatus } : {}),
+      ...(q
+        ? {
+          OR: [
+            { content: { contains: q, mode: "insensitive" } },
+            { tags: { contains: q, mode: "insensitive" } },
+            { user: { is: { name: { contains: q, mode: "insensitive" } } } },
+            { user: { is: { username: { contains: q, mode: "insensitive" } } } }
+          ]
+        }
+        : {})
+    };
+
+    const orderByDirection = sort === "asc" ? "asc" : "desc";
+
+    const rows = await prisma.feedback.findMany({
+      where: whereBase,
+      include: {
+        user: { select: { name: true, username: true } }
+      },
+      orderBy: { createdAt: orderByDirection }
+    });
+
+    // Build CSV
+    const escape = (val: any): string => {
+      const str = String(val ?? "");
+      if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const statusLabel: Record<string, string> = {
+      PENDING: "Chờ duyệt",
+      APPROVED: "Đã duyệt",
+      REJECTED: "Bị từ chối"
+    };
+
+    const header = ["ID", "Khách hàng", "Username", "Nội dung", "Số sao", "Trạng thái", "Ngày tạo"].join(",");
+    const dataRows = rows.map(fb => [
+      escape(fb.id),
+      escape(fb.user?.name ?? ""),
+      escape(fb.user?.username ?? ""),
+      escape(fb.content),
+      escape(fb.rating),
+      escape(statusLabel[fb.status] ?? fb.status),
+      escape(fb.createdAt.toISOString().replace("T", " ").substring(0, 19))
+    ].join(","));
+
+    const csv = [header, ...dataRows].join("\n");
+
+    const today = new Date().toISOString().substring(0, 10);
+    const filename = `danh-gia-${normalizedTab}-${today}.csv`;
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    // BOM để Excel mở đúng tiếng Việt
+    res.send("\uFEFF" + csv);
+  } catch (error) {
+    console.error("Error exportCsv:", error);
+    res.status(500).json({ code: 500, message: "Lỗi xuất báo cáo" });
   }
 };

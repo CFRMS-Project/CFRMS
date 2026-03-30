@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtns = modal.querySelectorAll(".modal-close-btn");
   closeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      modal.classList.add("hidden");
+      modal.style.display = "none";
     });
   });
 
@@ -16,25 +16,48 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("click", (e) => {
     const modalContent = modal.querySelector(".bg-white");
     if (modalContent && !modalContent.contains(e.target)) {
-      modal.classList.add("hidden");
+      modal.style.display = "none";
     }
   });
 
   // 1. Quản lý Checkboxes
   const checkAll = document.querySelector("input[name='checkall']");
-  const checkItems = document.querySelectorAll("input[name='id']");
+
+  function getCheckItems() {
+    return Array.from(document.querySelectorAll("input[name='id']"));
+  }
+
+  function updateCheckAllState() {
+    const checkItems = getCheckItems();
+    if (!checkAll || checkItems.length === 0) return;
+    const checkedCount = checkItems.filter(cb => cb.checked).length;
+    if (checkedCount === 0) {
+      checkAll.checked = false;
+      checkAll.indeterminate = false;
+    } else if (checkedCount === checkItems.length) {
+      checkAll.checked = true;
+      checkAll.indeterminate = false;
+    } else {
+      checkAll.checked = false;
+      checkAll.indeterminate = true;
+    }
+  }
 
   if (checkAll) {
     checkAll.addEventListener("change", () => {
-      checkItems.forEach((cb) => (cb.checked = checkAll.checked));
+      const checkItems = getCheckItems();
+      checkItems.forEach((cb) => {
+        cb.checked = checkAll.checked;
+      });
+      checkAll.indeterminate = false;
     });
   }
 
-  checkItems.forEach((cb) => {
-    cb.addEventListener("change", () => {
-      const allChecked = Array.from(checkItems).every((item) => item.checked);
-      if (checkAll) checkAll.checked = allChecked;
-    });
+  // Gán sự kiện cho các checkbox hàng
+  document.addEventListener("change", (e) => {
+    if (e.target.matches("input[name='id']")) {
+      updateCheckAllState();
+    }
   });
 
   // 2. Chức năng API
@@ -113,7 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // 4. Các nút tương tác trong Modal
   const btnApproveModal = document.getElementById("modal-btn-reply");
   const btnHideModal = document.getElementById("modal-btn-hide");
+  const btnEditReplyModal = document.getElementById("modal-btn-edit-reply");
   const replyInput = document.getElementById("modal-reply-input");
+
+  // Trạng thái chế độ sửa
+  let isEditMode = false;
 
   if (btnApproveModal) {
     btnApproveModal.addEventListener("click", () => {
@@ -129,29 +156,35 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnHideModal) {
     btnHideModal.addEventListener("click", () => {
        if (!currentFeedbackId) return;
-       updateStatus(currentFeedbackId, 'rejected').then(res => {
-         if (res.code === 200) window.location.reload();
-         else alert(res.message || "Lỗi");
-       });
+       if (confirm("Ẩn đánh giá này? Đánh giá sẽ bị đặt thành trạng thái bị từ chối.")) {
+         updateStatus(currentFeedbackId, 'rejected').then(res => {
+           if (res.code === 200) window.location.reload();
+           else alert(res.message || "Lỗi");
+         });
+       }
     });
   }
 
-  const btnDeleteModal = document.getElementById("modal-btn-delete");
-  if (btnDeleteModal) {
-    btnDeleteModal.addEventListener("click", () => {
+  // Nút Sửa phản hồi (chỉ xuất hiện khi APPROVED)
+  if (btnEditReplyModal) {
+    btnEditReplyModal.addEventListener("click", () => {
       if (!currentFeedbackId) return;
-      if (confirm("Bạn có chắc chắn muốn xóa (ẩn hoàn toàn) đánh giá vi phạm này không?")) {
-        fetch(`/admin/feedbacks/delete/${currentFeedbackId}`, {
-          method: 'DELETE',
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.code === 200) window.location.reload();
-          else alert(data.message || "Lỗi xóa đánh giá");
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Lỗi kết nối khi xóa");
+      if (!isEditMode) {
+        // Chuyển sang chế độ sửa: mở khóa textarea
+        isEditMode = true;
+        replyInput.disabled = false;
+        replyInput.focus();
+        btnEditReplyModal.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg> Lưu phản hồi`;
+      } else {
+        // Lưu phản hồi mới
+        const reply = replyInput.value.trim();
+        if (!reply) { alert("Vui lòng nhập nội dung phản hồi."); return; }
+        updateStatus(currentFeedbackId, 'approved', reply).then(res => {
+          if (res.code === 200) window.location.reload();
+          else alert(res.message || "Lỗi lưu phản hồi");
         });
       }
     });
@@ -165,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((response) => {
         if (response.code === 200) {
           renderModal(response.data);
-          modal.classList.remove("hidden");
+          modal.style.display = "flex";
         } else {
           alert("Lỗi: " + (response.message || "Không tìm thấy"));
         }
@@ -221,25 +254,41 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reply Box state
     if (data.reply && data.reply.content) {
       replyInput.value = data.reply.content;
-      replyInput.disabled = true;
+      replyInput.disabled = true; // Khóa mặc định, mở khi nhấn Sửa phản hồi
     } else {
       replyInput.value = "";
       replyInput.disabled = false;
     }
 
-    // Button states
-    const btnApproveModal = document.getElementById("modal-btn-reply");
-    const btnHideModal = document.getElementById("modal-btn-hide");
-    const btnDelModal = document.getElementById("modal-btn-delete");
-    
-    if(btnApproveModal) btnApproveModal.style.display = "flex";
-    if(btnHideModal) btnHideModal.style.display = "flex";
-    if(btnDelModal) btnDelModal.style.display = "flex";
+    // Reset trạng thái edit mode
+    isEditMode = false;
+    if (btnEditReplyModal) {
+      btnEditReplyModal.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg> Sửa phản hồi`;
+    }
 
-    if (data.status === "APPROVED") {
-      if(btnApproveModal) btnApproveModal.style.display = "none";
+    // Điều chỉnh hiển thị nút theo trạng thái
+    const btnApprove = document.getElementById("modal-btn-reply");
+    const btnHide = document.getElementById("modal-btn-hide");
+    const btnEditReply = document.getElementById("modal-btn-edit-reply");
+
+    // Reset hiển thị tất cả nút về mặc định
+    if (btnApprove) btnApprove.classList.remove("hidden");
+    if (btnHide) btnHide.classList.remove("hidden");
+    if (btnEditReply) btnEditReply.classList.add("hidden");
+
+    if (data.status === "PENDING") {
+      // Hiển: Ẩn đánh giá + Duyệt & Gửi phản hồi
+      // Mặc định đã đúng
+    } else if (data.status === "APPROVED") {
+      // Hiển: Ẩn đánh giá + Sửa phản hồi
+      if (btnApprove) btnApprove.classList.add("hidden");
+      if (btnEditReply) btnEditReply.classList.remove("hidden");
     } else if (data.status === "REJECTED") {
-      if(btnHideModal) btnHideModal.style.display = "none";
+      // Hiển: chỉ Duyệt & Gửi phản hồi
+      if (btnHide) btnHide.classList.add("hidden");
     }
   }
 });
