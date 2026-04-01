@@ -7,8 +7,9 @@
     "dev": "nodemon --exec tsx index.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "lint": "tsc --noEmit",
+    "test": "echo \"No tests yet\""
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CFRMS-Project/CFRMS.git"
