@@ -1,4 +1,4 @@
-name: Node.js CI Pipeline
+name: Node.js 20 CI Pipeline & Slack Notification
 
 on:
   push:
@@ -14,10 +14,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
+    - name: Set up Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '20'
         cache: 'npm'
 
     - name: Install dependencies
@@ -26,5 +26,21 @@ jobs:
     - name: Generate Prisma Client
       run: npx prisma generate
 
+    - name: Run Type Check (Lint)
+      run: npm run lint
+
+    - name: Run Tests
+      run: npm test
+
     - name: Build application
       run: npm run build
+
+    - name: Slack Notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_COLOR: ${{ job.status == 'success' && '#36A64F' || '#FF0000' }}
+        SLACK_TITLE: '${{ job.status == 'success' && 'CI Lớp 1 Thành công' || 'CI Lớp 1 Thất bại' }} - CFRMS'
+        SLACK_MESSAGE: 'Nhánh: ${{ github.ref_name }} | Kết quả: ${{ job.status }}'
+        SLACK_USERNAME: 'CFRMS CI Bot'
