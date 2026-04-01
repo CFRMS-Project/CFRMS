@@ -40,7 +40,7 @@ jobs:
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-        SLACK_COLOR: ${{ job.status == 'success' && '#36A64F' || '#FF0000' }}
-        SLACK_TITLE: '${{ job.status == 'success' && 'CI Lớp 1 Thành công' || 'CI Lớp 1 Thất bại' }} - CFRMS'
-        SLACK_MESSAGE: 'Nhánh: ${{ github.ref_name }} | Kết quả: ${{ job.status }}'
+        SLACK_COLOR: "${{ job.status == 'success' && '#36A64F' || '#FF0000' }}"
+        SLACK_TITLE: "${{ job.status == 'success' && 'CI Lớp 1 Thành công' || 'CI Lớp 1 Thất bại' }} - CFRMS"
+        SLACK_MESSAGE: "Nhánh: ${{ github.ref_name }} | Kết quả: ${{ job.status }}"
         SLACK_USERNAME: 'CFRMS CI Bot'
