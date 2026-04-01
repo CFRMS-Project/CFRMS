@@ -23,7 +23,7 @@ import {
   showEditForm,
   updateFeedback,
   toggleHideFeedback,
-} from "../../controllers/customer/feedbackController";
+} from "../../controllers/customer/feedback.controller";
 
 const router: Router = Router();
 
