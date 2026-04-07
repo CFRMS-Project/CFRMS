@@ -47,7 +47,9 @@ app.get("/", (_req, res) => {
 // --- Routes Customer ---
 clientRoutes(app);
 adminRoutes(app)
-
+app.use((req: Request, res: Response) => {
+  res.status(404).render("customer/pages/errors/404")
+})
 
 // --- Khởi động Server ---
 app.listen(PORT, () => {
