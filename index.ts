@@ -39,9 +39,9 @@ app.use(
 // --- Routes Công khai (không cần đăng nhập) ---
 app.use("/", authRoutes);
 
-// Root → redirect /login
+// Root → redirect /customer/home
 app.get("/", (_req, res) => {
-  res.redirect("/login");
+  res.redirect("/customer/home");
 });
 
 // --- Routes Customer ---

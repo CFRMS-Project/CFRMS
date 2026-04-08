@@ -89,6 +89,7 @@ export async function showProductDetail(
       ratingDist,
       allMedia,
       maskName, // Truyền utility function vào view
+      currentUser: res.locals["currentUser"] || null,
     });
   } catch (error) {
     console.error("Lỗi khi hiển thị chi tiết sản phẩm:", error);

@@ -15,6 +15,7 @@
 
 import { Router } from "express";
 import { uploadReviewImages } from "../../middlewares/upload";
+import { requireLogin } from "../../middlewares/auth";
 import {
   showFeedbackForm,
   submitFeedback,
@@ -27,26 +28,26 @@ import {
 
 const router: Router = Router();
 
-// --- GET: Hiển thị trang chi tiết sản phẩm ---
+// --- PUBLIC GET: Hiển thị trang chi tiết sản phẩm ---
 router.get("/product/:id", showProductDetail);
 
-// --- GET: Hiển thị form đánh giá (tạo mới) ---
-router.get("/new", showFeedbackForm);
-router.get("/order/:id/feedback", showFeedbackForm);
+// --- PROTECTED GET: Hiển thị form đánh giá (tạo mới) ---
+router.get("/new", requireLogin, showFeedbackForm);
+router.get("/order/:id/feedback", requireLogin, showFeedbackForm);
 
-// --- POST: Xử lý gửi đánh giá (mới) ---
-router.post("/", uploadReviewImages, submitFeedback);
+// --- PROTECTED POST: Xử lý gửi đánh giá (mới) ---
+router.post("/", requireLogin, uploadReviewImages, submitFeedback);
 
-// --- GET: Xem chi tiết 1 đánh giá ---
-router.get("/:id", showFeedback);
+// --- PROTECTED GET: Xem chi tiết 1 đánh giá ---
+router.get("/:id", requireLogin, showFeedback);
 
-// --- GET: Hiển thị form đánh giá (sửa) ---
-router.get("/:id/edit", showEditForm);
+// --- PROTECTED GET: Hiển thị form đánh giá (sửa) ---
+router.get("/:id/edit", requireLogin, showEditForm);
 
-// --- POST: Cập nhật đánh giá ---
-router.post("/:id/update", uploadReviewImages, updateFeedback);
+// --- PROTECTED POST: Cập nhật đánh giá ---
+router.post("/:id/update", requireLogin, uploadReviewImages, updateFeedback);
 
-// --- POST: Ẩn đánh giá ---
-router.post("/:id/toggle-hide", toggleHideFeedback);
+// --- PROTECTED POST: Ẩn đánh giá ---
+router.post("/:id/toggle-hide", requireLogin, toggleHideFeedback);
 
 export const feedbackRoutes: Router = router;

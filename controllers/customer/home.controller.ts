@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/db.js";
 export const index = (req: Request, res: Response) => {
-    res.render("customer/home")
+    res.render("customer/home", { currentUser: res.locals["currentUser"] || null });
 };
+
 
 export const home = async (req: Request, res: Response) => {
     try {

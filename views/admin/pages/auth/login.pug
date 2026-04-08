@@ -1,0 +1,340 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Đăng nhập Admin - CFRMS
+    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet")
+    style.
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      :root {
+        --bg-dark:    #0f1117;
+        --bg-card:    #1a1d27;
+        --bg-input:   #22263a;
+        --border:     #2e334d;
+        --border-focus: #6366f1;
+        --accent:     #6366f1;
+        --accent-2:   #818cf8;
+        --accent-glow:rgba(99,102,241,.35);
+        --text-primary:   #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted:     #475569;
+        --error-bg:   #2d1b1b;
+        --error-border:#7f1d1d;
+        --error-text:  #fca5a5;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-dark);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+      body::before, body::after {
+        content: '';
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      body::before {
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(99,102,241,.12) 0%, transparent 70%);
+        top: -200px; left: -150px;
+      }
+      body::after {
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(129,140,248,.08) 0%, transparent 70%);
+        bottom: -150px; right: -100px;
+      }
+      .grid-dots {
+        position: fixed; inset: 0;
+        background-image: radial-gradient(var(--border) 1px, transparent 1px);
+        background-size: 32px 32px;
+        opacity: .4;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .card {
+        position: relative; z-index: 1;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 1.5rem;
+        padding: 2.5rem 2.25rem;
+        width: 100%;
+        max-width: 440px;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.04) inset,
+          0 25px 60px -15px rgba(0,0,0,.7),
+          0 0 80px -30px var(--accent-glow);
+        animation: fadeUp .55s cubic-bezier(.22,1,.36,1) both;
+      }
+      @keyframes fadeUp {
+        from { opacity:0; transform: translateY(24px); }
+        to   { opacity:1; transform: translateY(0); }
+      }
+      .logo-wrap {
+        display: flex; align-items: center; gap: .75rem;
+        margin-bottom: 2rem;
+      }
+      .logo-icon {
+        width: 42px; height: 42px;
+        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        border-radius: .875rem;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 24px -4px var(--accent-glow);
+        flex-shrink: 0;
+      }
+      .logo-icon svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .logo-text { line-height: 1.15; }
+      .logo-text strong {
+        display: block;
+        font-size: .95rem; font-weight: 700;
+        color: var(--text-primary); letter-spacing: .04em;
+      }
+      .logo-text span {
+        font-size: .7rem; font-weight: 500;
+        color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em;
+      }
+      .admin-badge {
+        display: inline-flex; align-items: center; gap: .375rem;
+        background: rgba(99,102,241,.15);
+        border: 1px solid rgba(99,102,241,.3);
+        color: var(--accent-2);
+        font-size: .7rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .1em;
+        padding: .25rem .65rem;
+        border-radius: 9999px;
+        margin-bottom: .75rem;
+      }
+      .admin-badge .dot {
+        width: 6px; height: 6px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,100% { opacity:1; transform: scale(1); }
+        50%      { opacity:.5; transform: scale(.85); }
+      }
+      .heading { margin-bottom: 1.75rem; }
+      .heading h1 {
+        font-size: 1.5rem; font-weight: 800;
+        color: var(--text-primary); letter-spacing: -.02em;
+        margin-bottom: .375rem;
+      }
+      .heading p { font-size: .85rem; color: var(--text-secondary); }
+      .alert-error {
+        background: var(--error-bg);
+        border: 1px solid var(--error-border);
+        border-radius: .75rem;
+        padding: .75rem 1rem;
+        display: flex; align-items: center; gap: .5rem;
+        margin-bottom: 1.25rem;
+        font-size: .82rem; font-weight: 500;
+        color: var(--error-text);
+        animation: shake .35s cubic-bezier(.36,.07,.19,.97) both;
+      }
+      @keyframes shake {
+        10%, 90% { transform: translateX(-2px); }
+        20%, 80% { transform: translateX(3px); }
+        30%, 70% { transform: translateX(-4px); }
+        40%, 60% { transform: translateX(4px); }
+        50%       { transform: translateX(-3px); }
+      }
+      .field { margin-bottom: 1.125rem; }
+      .field label {
+        display: block;
+        font-size: .72rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .1em;
+        color: var(--text-muted);
+        margin-bottom: .5rem;
+      }
+      .input-wrap { position: relative; }
+      .input-icon {
+        position: absolute; left: .875rem;
+        top: 50%; transform: translateY(-50%);
+        color: var(--text-muted); pointer-events: none;
+        display: flex; align-items: center;
+        transition: color .2s;
+      }
+      .input-icon svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .input-wrap:focus-within .input-icon { color: var(--accent-2); }
+      .field input {
+        width: 100%;
+        padding: .8rem 1rem .8rem 2.75rem;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: .75rem;
+        color: var(--text-primary);
+        font-family: inherit; font-size: .9rem;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+      }
+      .field input::placeholder { color: var(--text-muted); }
+      .field input:focus {
+        border-color: var(--border-focus);
+        background: #252a3e;
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+      .btn-toggle {
+        position: absolute; right: .875rem;
+        top: 50%; transform: translateY(-50%);
+        background: none; border: none; cursor: pointer;
+        color: var(--text-muted); padding: .25rem;
+        display: flex; transition: color .2s;
+      }
+      .btn-toggle:hover { color: var(--text-secondary); }
+      .btn-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .field-row {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem; margin-top: -.25rem;
+      }
+      .checkbox-wrap {
+        display: flex; align-items: center; gap: .5rem;
+        font-size: .82rem; color: var(--text-secondary); cursor: pointer;
+      }
+      .checkbox-wrap input[type="checkbox"] {
+        width: 15px; height: 15px;
+        accent-color: var(--accent); cursor: pointer;
+      }
+      .forgot-link {
+        font-size: .8rem; font-weight: 600;
+        color: var(--accent-2); text-decoration: none;
+        transition: color .2s;
+      }
+      .forgot-link:hover { color: #a5b4fc; }
+      .btn-submit {
+        width: 100%;
+        padding: .9rem;
+        background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+        border: none; border-radius: .875rem;
+        color: #fff; font-family: inherit;
+        font-size: .9rem; font-weight: 700;
+        cursor: pointer; letter-spacing: .02em;
+        display: flex; align-items: center; justify-content: center; gap: .5rem;
+        box-shadow: 0 8px 28px -6px var(--accent-glow);
+        transition: filter .2s, transform .15s, box-shadow .2s;
+        position: relative; overflow: hidden;
+      }
+      .btn-submit::after {
+        content: '';
+        position: absolute; inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+        opacity: 0; transition: opacity .2s;
+      }
+      .btn-submit:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 12px 32px -6px var(--accent-glow); }
+      .btn-submit:hover::after { opacity: 1; }
+      .btn-submit:active { transform: scale(.98); filter: brightness(.95); }
+      .btn-submit svg { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .back-link {
+        display: flex; align-items: center; justify-content: center; gap: .4rem;
+        font-size: .82rem; color: var(--text-muted); text-decoration: none;
+        transition: color .2s; margin-top: 1.5rem;
+      }
+      .back-link:hover { color: var(--text-secondary); }
+      .back-link svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  body
+    .grid-dots
+    .card
+      //- Logo
+      .logo-wrap
+        .logo-icon
+          svg(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+            path(d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z")
+        .logo-text
+          strong CFRMS
+          span Hệ thống quản trị
+
+      //- Admin badge
+      .admin-badge
+        .dot
+        span Cổng đăng nhập Admin
+
+      //- Heading
+      .heading
+        h1 Chào mừng trở lại
+        p Nhập thông tin xác thực để truy cập bảng điều khiển.
+
+      //- Error message
+      if errorMessage
+        .alert-error
+          svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round")
+            circle(cx="12" cy="12" r="10")
+            line(x1="12" y1="8" x2="12" y2="12")
+            line(x1="12" y1="16" x2="12.01" y2="16")
+          span= errorMessage
+
+      //- Form
+      form(action="/admin/login" method="POST")
+        .field
+          label(for="admin-username") Tên đăng nhập
+          .input-wrap
+            .input-icon
+              svg(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+                path(d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2")
+                circle(cx="12" cy="7" r="4")
+            input#admin-username(
+              type="text"
+              name="username"
+              placeholder="admin"
+              autocomplete="username"
+              autofocus
+            )
+
+        .field
+          label(for="admin-password") Mật khẩu
+          .input-wrap
+            .input-icon
+              svg(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+                rect(x="3" y="11" width="18" height="11" rx="2" ry="2")
+                path(d="M7 11V7a5 5 0 0 1 10 0v4")
+            input#admin-password(
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            )
+            button.btn-toggle(type="button" id="togglePwd" aria-label="Hiện/ẩn mật khẩu")
+              svg(id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+                path(d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z")
+                circle(cx="12" cy="12" r="3")
+
+        .field-row
+          label.checkbox-wrap
+            input(type="checkbox" name="remember")
+            span Ghi nhớ đăng nhập
+          a.forgot-link(href="#") Quên mật khẩu?
+
+        button.btn-submit(type="submit")
+          span Đăng nhập
+          svg(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+            path(d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4")
+            polyline(points="10 17 15 12 10 7")
+            line(x1="15" y1="12" x2="3" y2="12")
+
+      a.back-link(href="/customer/home")
+        svg(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+          path(d="M19 12H5")
+          polyline(points="12 19 5 12 12 5")
+        span Về trang khách hàng
+
+    script.
+      // Toggle password visibility
+      const toggleBtn  = document.getElementById('togglePwd');
+      const pwdInput   = document.getElementById('admin-password');
+      const eyeIcon    = document.getElementById('eyeIcon');
+      const eyeOffPath = 'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24';
+      const eyeOnPath  = 'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z';
+      const circlePath = '<circle cx="12" cy="12" r="3"/>';
+      toggleBtn && toggleBtn.addEventListener('click', function() {
+        var isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        eyeIcon.innerHTML = isPassword
+          ? '<path d="' + eyeOffPath + '"/><line x1="1" y1="1" x2="23" y2="23" stroke-linecap="round"/>'
+          : '<path d="' + eyeOnPath + '"/>' + circlePath;
+      });
