@@ -1,12 +1,14 @@
 import { Router, Express } from "express";
 import { feedbackRoutes } from "./feedback.routes";
-import { requireLogin } from "../../middlewares/auth";
+import { requireLogin, optionalAuth } from "../../middlewares/auth";
 import { homeRoutes } from "./home.routes";
 
 export const router = Router();
 
 const clientRoutes = (app: Express) => {
-    app.use("/customer", requireLogin, homeRoutes);
-    app.use("/feedback", requireLogin, feedbackRoutes);
+    // Trang home: public, nhưng vẫn gắn user nếu đã login
+    app.use("/customer", optionalAuth, homeRoutes);
+    // Trang tính năng feedback: để optionalAuth bọc ngoài, sẽ có route công khai & bắt buộc login bên trong
+    app.use("/feedback", optionalAuth, feedbackRoutes);
 }
 export default clientRoutes;

@@ -1,9 +1,13 @@
-import { Router, Express } from "express";
-import { Prisma } from "@prisma/client";
-import prisma from "../../utils/db";
-const router: Router = Router();
+import { Router } from "express";
+import { requireLogin } from "../../middlewares/auth";
 import * as controller from "../../controllers/customer/home.controller"
+
+const router: Router = Router();
+
+// Public: không cần đăng nhập
 router.get("/home", controller.index);
 
-router.get("/history", controller.home)
-export const homeRoutes: Router = router;
+// Protected: cần đăng nhập
+router.get("/history", requireLogin, controller.home);
+
+export const homeRoutes: Router = router;

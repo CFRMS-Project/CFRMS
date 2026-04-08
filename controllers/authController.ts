@@ -2,21 +2,28 @@
  * =============================================================
  * Auth Controller: Xử lý Đăng nhập / Đăng xuất
  * =============================================================
- * - showLogin: Hiển thị trang đăng nhập
- * - handleLogin: Xác thực username + password, lưu session, redirect theo role
- * - handleLogout: Xóa session và redirect về trang login
+ * - showLogin:       Hiển thị trang đăng nhập chung (customer)
+ * - handleLogin:     Xác thực customer, lưu session, redirect
+ * - showAdminLogin:  Hiển thị trang đăng nhập dành riêng cho admin
+ * - handleAdminLogin:Xác thực admin, chỉ chấp nhận role ADMIN
+ * - handleLogout:    Xóa session và redirect về trang login
  * =============================================================
  */
 
 import type { Request, Response } from "express";
 import prisma from "../utils/db.js";
 
-// --- Hiển thị form đăng nhập ---
+// --- Hiển thị form đăng nhập chung (customer) ---
 export const showLogin = (req: Request, res: Response) => {
   res.render("partials/login", { errorMessage: null });
 };
 
-// --- Xử lý đăng nhập ---
+// --- Hiển thị form đăng nhập Admin ---
+export const showAdminLogin = (req: Request, res: Response) => {
+  res.render("admin/pages/auth/login", { errorMessage: null });
+};
+
+// --- Xử lý đăng nhập chung ---
 export const handleLogin = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body as { username: string; password: string };
@@ -60,6 +67,51 @@ export const handleLogin = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Lỗi đăng nhập:", error);
     res.render("partials/login", {
+      errorMessage: "Đã xảy ra lỗi hệ thống. Vui lòng thử lại!",
+    });
+  }
+};
+
+// --- Xử lý đăng nhập Admin (chỉ cho phép role ADMIN) ---
+export const handleAdminLogin = async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body as { username: string; password: string };
+
+    const user = await prisma.user.findUnique({ where: { username } });
+
+    if (!user) {
+      res.render("admin/pages/auth/login", {
+        errorMessage: "Tên đăng nhập không tồn tại!",
+      });
+      return;
+    }
+
+    if (user.password !== password) {
+      res.render("admin/pages/auth/login", {
+        errorMessage: "Mật khẩu không chính xác!",
+      });
+      return;
+    }
+
+    if (user.role !== "ADMIN") {
+      res.render("admin/pages/auth/login", {
+        errorMessage: "Bạn không có quyền truy cập trang quản trị!",
+      });
+      return;
+    }
+
+    (req.session as any)["user"] = {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      role: user.role,
+      avatar: user.avatar,
+    };
+
+    res.redirect("/admin/dashboard");
+  } catch (error) {
+    console.error("Lỗi đăng nhập admin:", error);
+    res.render("admin/pages/auth/login", {
       errorMessage: "Đã xảy ra lỗi hệ thống. Vui lòng thử lại!",
     });
   }

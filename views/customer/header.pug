@@ -2,7 +2,7 @@
 header.site-header(class="bg-white py-4 border-b border-gray-100 sticky top-0 z-50 shadow-sm")
   .header-container(class="max-w-7xl mx-auto px-6 flex items-center justify-between")
     
-    //- Logo (Giữ nguyên bên trái)
+    //- Logo
     a.header-brand(href="/customer/home" class="flex items-center gap-2 group")
       .brand-icon(class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30 transition-transform group-hover:scale-110")
         svg(class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
@@ -11,24 +11,25 @@ header.site-header(class="bg-white py-4 border-b border-gray-100 sticky top-0 z-
           path(d="M12 21V9")
       span.brand-text(class="font-bold text-lg tracking-tight text-slate-800") ShopVN
 
-    //- Khối bọc mới: Chứa cả Nav và Actions để đẩy tất cả sang phải
     .header-right-section(class="flex items-center gap-10")
       
-      //- Navigation (Đã di chuyển vào đây và chỉnh gap)
+      //- Navigation
       nav.header-nav(class="hidden md:block")
         ul(class="flex items-center gap-8")
           li: a(href="/customer/home" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors") Trang chủ
           li: a(href="/feedback/product/1" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors") Sản phẩm
-          li: a(href="/customer/history" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors") Đơn hàng
+          if currentUser
+            li: a(href="/customer/history" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors") Đơn hàng
 
-      //- Actions (Thông báo, Giỏ hàng, Avatar)
+      //- Actions
       .header-actions(class="flex items-center gap-3")
-        //- Notification
-        button.btn-icon(class="w-10 h-10 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-slate-100 transition-all relative")
-          svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
-            path(d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9")
-            path(d="M13.73 21a2 2 0 0 1-3.46 0")
-          span(class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white")
+        //- Notification (chỉ hiện khi đã đăng nhập)
+        if currentUser
+          button.btn-icon(class="w-10 h-10 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-slate-100 transition-all relative")
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round")
+              path(d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9")
+              path(d="M13.73 21a2 2 0 0 1-3.46 0")
+            span(class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white")
         
         //- Cart
         button.btn-icon(class="w-10 h-10 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-slate-100 transition-all")
@@ -37,12 +38,26 @@ header.site-header(class="bg-white py-4 border-b border-gray-100 sticky top-0 z-
             line(x1="3" y1="6" x2="21" y2="6")
             path(d="M16 10a4 4 0 0 1-8 0")
         
-        //- Profile Avatar
-        .user-avatar(class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 ml-1 shadow-sm")
-          if currentUser && currentUser.avatar
-            img(src=currentUser.avatar alt="Avatar" class="w-full h-full object-cover")
-          else
-            div(class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase") #{currentUser ? currentUser.name.charAt(0) : 'U'}
-        
-        //- Đăng xuất
-        a.btn-logout(href="/logout" class="ml-2 hidden sm:block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-xs font-bold transition-all shadow-md shadow-blue-500/20") Đăng xuất
+        //- Điều kiện đăng nhập / chưa đăng nhập
+        if currentUser
+          //- Avatar
+          .user-avatar(class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 ml-1 shadow-sm")
+            if currentUser.avatar
+              img(src=currentUser.avatar alt="Avatar" class="w-full h-full object-cover")
+            else
+              div(class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs uppercase") #{currentUser.name.charAt(0)}
+          //- Đăng xuất
+          a.btn-logout(href="/logout" class="ml-2 hidden sm:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-full text-xs font-bold transition-all")
+            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round")
+              path(d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4")
+              polyline(points="16 17 21 12 16 7")
+              line(x1="21" y1="12" x2="9" y2="12")
+            span Đăng xuất
+        else
+          //- Chưa đăng nhập
+          a(href="/login" class="ml-2 hidden sm:flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-xs font-bold transition-all shadow-md shadow-blue-500/20")
+            svg(xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round")
+              path(d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4")
+              polyline(points="10 17 15 12 10 7")
+              line(x1="15" y1="12" x2="3" y2="12")
+            span Đăng nhập
