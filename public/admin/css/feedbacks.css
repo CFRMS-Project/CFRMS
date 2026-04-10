@@ -1,0 +1,6 @@
+/* === FEEDBACKS PAGE STYLES === */
+
+/* Thay thế Tailwind text-[10px] không tương thích Pug */
+.text-10 {
+  font-size: 10px;
+}

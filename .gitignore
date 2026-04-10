@@ -1,0 +1,29 @@
+/node_modules
+/.pnp.js
+.pnp.js
+.env
+/generated/prisma
+# Bỏ qua thư viện tải về (rất nặng, người khác clone về tự chạy npm install)
+node_modules/
+
+# Bỏ qua code đã biên dịch từ TypeScript ra JavaScript thuần
+dist/
+build/
+
+# Tuyệt đối bỏ qua file biến môi trường (Chứa mật khẩu Database)
+.env
+.env.test
+.env.production
+
+# Bỏ qua các file log lỗi của Node.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Bỏ qua các file cấu hình ẩn của hệ điều hành và Editor (VS Code)
+.DS_Store
+.vscode/
+.idea/
+
+# Bỏ qua thư mục sinh ra khi test (nếu sau này bạn dùng thêm tool)
+coverage/

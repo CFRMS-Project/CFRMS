@@ -1,0 +1,330 @@
+extends ../../layouts/default.pug
+
+block styles
+  style.
+    .feedbacks-actions button {
+      text-transform: none !important;
+    }
+    
+    /* Search input styling */
+    .search-input {
+      background-color: #F8FAFC;
+    }
+    
+    /* Table headers */
+    th {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Custom buttons */
+    .btn-action-approve {
+      color: #10B981;
+      border: 1px solid #10B981;
+      background-color: transparent;
+      border-radius: 9999px;
+    }
+    .btn-action-approve:hover {
+      background-color: #ECFDF5;
+      border-color: #10B981;
+    }
+    
+    .btn-action-reject {
+      color: #EF4444;
+      border: 1px solid #EF4444;
+      background-color: transparent;
+      border-radius: 9999px;
+    }
+    .btn-action-reject:hover {
+      background-color: #FEF2F2;
+      border-color: #EF4444;
+    }
+    
+    .btn-action-detail {
+      color: #3B82F6;
+      border: 1px solid #3B82F6;
+      background-color: transparent;
+      border-radius: 9999px;
+    }
+    .btn-action-detail:hover {
+      background-color: #EFF6FF;
+      border-color: #3B82F6;
+    }
+    
+    /* Pills */
+    .status-pill-pending {
+      color: #F59E0B;
+      background-color: #FEF3C7;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .status-pill-approved {
+      color: #10B981;
+      background-color: #ECFDF5;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .status-pill-rejected {
+      color: #EF4444;
+      background-color: #FEF2F2;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    
+    /* Card icon containers */
+    .card-icon-pending {
+      background-color: #EFF6FF;
+      color: #3B82F6;
+    }
+    .card-icon-approved {
+      background-color: #FFF7ED;
+      color: #F97316;
+    }
+    .card-icon-violation {
+      background-color: #FEF2F2;
+      color: #EF4444;
+    }
+
+block content
+  - var activePage = 'reviews'
+  - const currentTab = (filters && filters.tab) ? filters.tab : 'pending'
+  - const currentPage = Number((pagination && pagination.page) ? pagination.page : ((filters && filters.page) ? filters.page : 1))
+  - const totalPages = Math.max(1, Number((pagination && pagination.totalPages) ? pagination.totalPages : 1))
+  - const pendingCount = Number((tabCounts && tabCounts.pending) ? tabCounts.pending : 0)
+  - const approvedCount = Number((tabCounts && tabCounts.approved) ? tabCounts.approved : 0)
+  - const rejectedCount = Number((tabCounts && tabCounts.rejected) ? tabCounts.rejected : 0)
+  - const allCount = Number((tabCounts && tabCounts.all) ? tabCounts.all : 0)
+  - const safeQuery = (filters && filters.q) ? filters.q : ''
+  - const currentSort = (filters && filters.sort) ? filters.sort : 'desc'
+
+  //- 1. THANH TÌM KIẾM
+  div(class='mb-8')
+    form(class='relative max-w-full' method='GET' action='/admin/feedbacks')
+      input(type='hidden' name='tab' value=currentTab)
+      span(class='absolute inset-y-0 left-0 flex items-center pl-4')
+        svg(xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-gray-400' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+          path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z')
+      input(class='w-full search-input border-0 rounded-full py-3.5 pl-12 pr-4 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100' type='text' name='q' value=safeQuery placeholder='Tìm kiếm đánh giá, sản phẩm...' onkeypress='if(event.key === "Enter") this.form.submit()')
+
+  //- 2. THẺ THỐNG KÊ
+  div(class='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8')
+    div(class='bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5')
+      div(class='w-14 h-14 rounded-2xl card-icon-pending flex items-center justify-center')
+        svg(xmlns='http://www.w3.org/2000/svg' class='h-7 w-7' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+          path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4')
+      div
+        p(class='text-sm font-semibold text-gray-500 mb-1') Đang chờ duyệt
+        h3(class='text-3xl font-bold text-gray-900')= (stats != null && stats.pendingCount != null) ? stats.pendingCount.toLocaleString('vi-VN') : 0
+
+    div(class='bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5')
+      div(class='w-14 h-14 rounded-2xl card-icon-approved flex items-center justify-center')
+        svg(xmlns='http://www.w3.org/2000/svg' class='h-7 w-7' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+          path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z')
+      div
+        p(class='text-sm font-semibold text-gray-500 mb-1') Đã duyệt hôm nay
+        h3(class='text-3xl font-bold text-gray-900')= (stats != null && stats.approvedTodayCount != null) ? stats.approvedTodayCount.toLocaleString('vi-VN') : 0
+
+    div(class='bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5')
+      div(class='w-14 h-14 rounded-2xl card-icon-violation flex items-center justify-center')
+        svg(xmlns='http://www.w3.org/2000/svg' class='h-7 w-7' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+          path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z')
+      div
+        p(class='text-sm font-semibold text-gray-500 mb-1') Tỉ lệ vi phạm
+        h3(class='text-3xl font-bold text-gray-900')= `${(stats != null && stats.violationRate != null) ? Number(stats.violationRate).toFixed(1) : '0.0'}%`
+
+  //- 3. BẢNG KIỂM DUYỆT
+  div(class='bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden pt-8 pb-10 min-h-[500px]')
+    div(class='px-5 mb-6 flex justify-between items-center')
+      h2(class='text-xl font-bold text-gray-900') Danh sách kiểm duyệt đánh giá
+      div(class='flex gap-3 feedbacks-actions')
+        button(id='btn-bulk-approve' class='btn btn-sm h-10 px-5 border-none text-white hover:opacity-90 font-medium shadow-sm transition-all' style='background-color:#3B82F6; border-radius: 9999px;' type='button') Duyệt hàng loạt
+        a(href=`/admin/feedbacks/export?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=${currentSort}` class='btn btn-sm h-10 px-5 border-none font-medium shadow-sm hover:bg-gray-200 hover:shadow-md transition-all flex items-center gap-2' style='background-color:#FFFFFF; color: #000000; border-radius: 9999px;' download)
+          svg(xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-gray-500' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+            path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4')
+          | Xuất CSV
+        
+    div(class='px-5 border-b border-gray-100 flex justify-between items-center')
+      div(class='flex gap-8 text-sm overflow-x-auto')
+        a(class=`py-4 whitespace-nowrap ${currentTab === 'pending' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=pending&q=${encodeURIComponent(safeQuery)}`) Chưa xử lý (#{pendingCount || 0})
+        a(class=`py-4 whitespace-nowrap ${currentTab === 'approved' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=approved&q=${encodeURIComponent(safeQuery)}`) Đã xử lý (#{approvedCount || 0})
+        a(class=`py-4 whitespace-nowrap ${currentTab === 'rejected' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=rejected&q=${encodeURIComponent(safeQuery)}`) Bị từ chối (#{rejectedCount || 0})
+        a(class=`py-4 whitespace-nowrap ${currentTab === 'all' ? 'font-bold text-blue-600 border-b-2 border-blue-600' : 'font-medium text-gray-500 hover:text-gray-800'}` href=`/admin/feedbacks?tab=all&q=${encodeURIComponent(safeQuery)}`) Tất cả (#{allCount || 0})
+      
+      div(class='flex items-center gap-2')
+        span(class='text-xs font-bold text-gray-400') SẮP XẾP:
+        div(class='flex bg-gray-50 rounded-full p-1 border border-gray-100')
+          a(href=`/admin/feedbacks?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=desc` class=`px-4 py-1.5 text-xs inline-block text-center rounded-full transition-colors ${currentSort === 'desc' ? 'font-bold bg-white text-blue-600 shadow-sm' : 'font-semibold text-gray-500 hover:text-gray-700'}`) Mới nhất
+          a(href=`/admin/feedbacks?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=asc` class=`px-4 py-1.5 text-xs inline-block text-center rounded-full transition-colors ${currentSort === 'asc' ? 'font-bold bg-white text-blue-600 shadow-sm' : 'font-semibold text-gray-500 hover:text-gray-700'}`) Cũ nhất
+
+    div(class='overflow-x-auto px-2')
+      table(class='table w-full border-separate' style='border-spacing: 0 1rem;')
+        thead
+          tr(class='text-left pb-4')
+            th(class='pl-5 w-[4%] py-3 min-w-[50px]')
+              input(type='checkbox' name='checkall' class='checkbox checkbox-sm checkbox-info rounded border-gray-300')
+            th(class='w-[22%] min-w-[235px] pr-5') KHÁCH HÀNG
+            th(class='w-[17%] min-w-[175px] pr-5') SẢN PHẨM
+            th(class='w-[38%] min-w-[350px]') NỘI DUNG ĐÁNH GIÁ
+            th(class='w-[10%] min-w-[110px] text-center whitespace-nowrap') TRẠNG THÁI
+            th(class='pr-5 w-[13%] min-w-[140px] text-center whitespace-nowrap') THAO TÁC
+
+        tbody(class='align-top')
+          if feedbacks && feedbacks.length
+            each feedback in feedbacks
+              - const userName = (feedback.user && feedback.user.name) ? feedback.user.name : ((feedback.user && feedback.user.username) ? feedback.user.username : 'Ẩn danh')
+              - const avatar = (feedback.user && feedback.user.avatar) ? feedback.user.avatar : `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(userName)}`
+              - const productName = feedback.product?.name || 'Đồng hồ cao cấp'
+              - const productCategory = feedback.product?.category?.name || 'Công nghệ'
+              - const statusLabel = feedback.status === 'APPROVED' ? 'Đã duyệt' : (feedback.status === 'REJECTED' ? 'Bị từ chối' : 'Chờ duyệt')
+              - const statusClass = feedback.status === 'APPROVED' ? 'status-pill-approved' : (feedback.status === 'REJECTED' ? 'status-pill-rejected' : 'status-pill-pending')
+              
+              tr(class='hover:bg-gray-50/50 transition-colors group' data-id=feedback.id)
+                td(class='pl-5 py-3 align-middle')
+                  input(type='checkbox' name='id' value=feedback.id class='checkbox checkbox-sm rounded border-gray-300')
+                td(class='py-3 pr-4')
+                  div(class='flex items-center gap-3')
+                    img(class='w-12 h-12 rounded-full object-cover bg-gray-100' src=avatar alt='User')
+                    div
+                      div(class='font-bold text-gray-900 text-[15px]' data-username)= userName
+                      div(class='text-sm text-gray-400') ID: #{feedback.userId || '#928374'}
+                td(class='py-3 pr-4')
+                  div(class='font-bold text-gray-800 text-[15px] mb-0.5' data-productName)= productName
+                  div(class='text-sm text-gray-400')= productCategory
+                td(class='py-3')
+                  div(class='flex text-yellow-400 mb-1.5 gap-0.5')
+                    - for (let i = 1; i <= 5; i++) {
+                      svg(xmlns='http://www.w3.org/2000/svg' class=`h-4 w-4 ${i <= (feedback.rating || 5) ? 'text-yellow-400' : 'text-gray-200'}` viewBox='0 0 20 20' fill='currentColor' data-rating)
+                        path(d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z')
+                    - }
+                  p(class='text-gray-600 text-[15px] mb-2 line-clamp-3' data-content)= feedback.content
+                  if feedback.reviewMedia && feedback.reviewMedia.length
+                    div(class='flex gap-2 mt-2')
+                      each media in feedback.reviewMedia
+                        a(href=media.url target='_blank' class='hover:opacity-80 transition-opacity')
+                          img(class='w-12 h-12 rounded-lg object-cover border border-gray-200' src=media.url alt='Review media' data-reviewMedia)
+                td(class='py-3 text-center align-middle')
+                  span(class=`inline-flex items-center justify-center px-4 py-1.5 text-xs uppercase ${statusClass}` data-status)= statusLabel
+                td(class='pr-5 py-3 align-middle')
+                  div(class='flex items-center justify-center gap-2')
+                    button(class='btn btn-action-detail btn-sm px-3 text-xs font-semibold h-8 min-h-0 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none' type='button') Chi tiết
+                    if feedback.status === 'PENDING'
+                      button(class='btn btn-action-approve btn-sm px-3 text-xs font-semibold h-8 min-h-0 bg-green-50 text-green-600 hover:bg-green-100 border-none shadow-none' type='button') Duyệt
+                      button(class='btn btn-action-reject btn-sm px-3 text-xs font-semibold h-8 min-h-0 bg-red-50 text-red-600 hover:bg-red-100 border-none shadow-none' type='button') Từ chối
+          else
+            tr
+              td(class='text-center text-gray-500 py-10' colspan='5') Không có đánh giá phù hợp với bộ lọc hiện tại.
+
+    if feedbacks && feedbacks.length
+      //- 4. PHÂN TRANG
+      - const startItem = (pagination && pagination.startItem) ? pagination.startItem : 1
+      - const endItem = (pagination && pagination.endItem) ? pagination.endItem : feedbacks.length
+      - const total = (pagination && pagination.total) ? pagination.total : feedbacks.length
+      - const showEdgeButtons = totalPages > 2
+      div(class='px-5 py-6 border-t border-gray-100 flex justify-between items-center')
+        span(class='text-[13px] font-medium text-gray-400') Hiển thị #{startItem} - #{endItem} trong #{total} đánh giá
+        div(class='flex gap-1.5')
+          if showEdgeButtons
+            a(href=`/admin/feedbacks?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=${currentSort}&page=${Math.max(1, currentPage - 1)}` class=`w-8 h-8 flex items-center justify-center rounded-lg border text-sm ${currentPage <= 1 ? 'pointer-events-none cursor-not-allowed text-gray-300 border-gray-100' : 'text-gray-400 border-gray-200 hover:bg-gray-50'}`)
+              svg(xmlns='http://www.w3.org/2000/svg' class='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7')
+          
+          each p in ((pagination && pagination.pages) ? pagination.pages : [1])
+            if p === currentPage
+              span(class='w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white font-medium text-sm border-none')= p
+            else
+              a(href=`/admin/feedbacks?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=${currentSort}&page=${p}` class='w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 font-medium text-sm bg-white')= p
+          
+          if showEdgeButtons
+            a(href=`/admin/feedbacks?tab=${currentTab}&q=${encodeURIComponent(safeQuery)}&sort=${currentSort}&page=${Math.min(totalPages, currentPage + 1)}` class=`w-8 h-8 flex items-center justify-center rounded-lg border text-sm bg-white ${currentPage >= totalPages ? 'pointer-events-none cursor-not-allowed text-gray-300 border-gray-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`)
+              svg(xmlns='http://www.w3.org/2000/svg' class='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7')
+
+  //- 5. MODAL CHI TIẾT ĐÁNH GIÁ (Ẩn mặc định)
+  div(id='feedback-detail-modal' class='fixed inset-0 z-50 hidden flex items-center justify-center p-4' style='background-color: rgba(0,0,0,0.45); backdrop-filter: blur(4px);')
+    div(class='bg-white w-full shadow-2xl flex flex-col' style='border-radius: 20px; max-width: 580px; max-height: 90vh;')
+        //- Header (cố định)
+        div(class='flex items-center justify-between px-7 py-5 border-b border-gray-100 flex-shrink-0')
+          h3(class='text-[16px] font-bold flex items-center gap-2.5 text-gray-900')
+            svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-blue-600' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+              path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z')
+            | Chi tiết Đánh giá & Phản hồi
+          button(class='text-gray-400 hover:text-gray-600 transition-colors modal-close-btn')
+            svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='2')
+              path(stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12')
+        
+        //- Body (scroll được)
+        div(class='overflow-y-auto flex-1 px-7 py-6')
+          //- 2 Card: User + Product
+          div(class='flex gap-3 mb-6')
+            div(class='flex-1 min-w-0 border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3')
+              img(id='modal-user-avatar' class='w-10 h-10 flex-shrink-0 rounded-full object-cover bg-gray-200' src='')
+              div(class='min-w-0')
+                div(class='font-bold text-gray-900 text-[14px] truncate' id='modal-user-name')
+            div(class='flex-1 min-w-0 border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3')
+              img(id='modal-product-img' class='w-10 h-10 flex-shrink-0 rounded-full object-cover bg-gray-200' src='')
+              div(class='min-w-0')
+                div(class='font-bold text-gray-900 text-[14px] truncate leading-snug' id='modal-product-name')
+                div(class='text-blue-500 font-medium text-[13px] mt-0.5 truncate' id='modal-product-price')
+          
+          //- Rating + Date
+          div(class='mb-6')
+            div(class='flex items-center gap-2 mb-1')
+              div(id='modal-rating-stars' class='flex gap-0.5')
+              span(class='font-bold text-[22px] text-gray-900 ml-1' id='modal-rating-score')
+            div(class='text-[11px] text-gray-400 font-semibold tracking-wider uppercase' id='modal-date')
+          
+          //- Content quote
+          div(class='bg-[#F8FAFC] rounded-2xl py-5 px-6 mb-7 relative')
+            div(class='absolute left-0 top-4 bottom-4 w-1 bg-blue-600 rounded-r-full')
+            p(id='modal-content' class='text-[15px] text-gray-700 leading-relaxed ml-1')
+          
+          //- Hình ảnh đính kèm
+          div(id='modal-media-container' class='mb-7 hidden')
+            div(class='text-[11px] text-gray-500 font-bold mb-3 uppercase tracking-widest') HÌNH ẢNH ĐÍNH KÈM
+            div(class='flex gap-3' id='modal-media-list')
+          
+          //- Divider + Reply section
+          div(class='border-t border-gray-100 pt-7')
+            div(class='flex justify-between items-center mb-4')
+              div(class='font-bold flex items-center gap-2 text-gray-900 text-[15px]')
+                svg(xmlns='http://www.w3.org/2000/svg' class='w-5 h-5 text-gray-400' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                  path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6')
+                | Phản hồi của cửa hàng
+              button(class='flex items-center gap-1.5 text-[13px] bg-white px-3.5 py-1.5 rounded-full border border-gray-200 text-blue-600 hover:bg-blue-50 transition-colors font-medium' type='button')
+                svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                  path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 10h16M4 14h16M4 18h16')
+                | Câu trả lời mẫu
+                svg(xmlns='http://www.w3.org/2000/svg' class='w-3 h-3 ml-0.5' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                  path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7')
+            
+            textarea(id='modal-reply-input' class='w-full border border-gray-200 rounded-2xl p-4 text-[15px] bg-white focus:ring-1 focus:ring-blue-200 focus:outline-none min-h-[110px] resize-none placeholder-gray-400' placeholder='Nhập nội dung phản hồi chuyên nghiệp tại đây...')
+            
+            div(class='text-[11px] text-gray-400 mt-2.5 flex items-center gap-1.5')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-3.5 h-3.5 flex-shrink-0' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
+              | Phản hồi sẽ được hiển thị công khai trên trang chi tiết sản phẩm sau khi duyệt.
+              
+        //- Footer (cố định)
+        div(class='px-7 py-5 border-t border-gray-100 bg-white flex justify-between items-center flex-shrink-0' style='border-radius: 0 0 20px 20px;')
+          button(class='font-semibold text-gray-600 hover:text-gray-900 modal-close-btn transition-colors text-[14px]' type='button') Đóng
+          div(class='flex gap-2.5')
+            //- Nút Ẩn đánh giá (đặt REJECTED) - hiển thị khi PENDING hoặc APPROVED
+            button(id='modal-btn-hide' class='px-4 py-2.5 rounded-full border border-pink-300 bg-pink-50 text-pink-600 font-semibold text-[13px] hover:bg-pink-100 hover:border-pink-400 flex items-center gap-1.5 transition-colors')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636')
+              | Ẩn đánh giá
+            
+            //- Nút Duyệt & Gửi phản hồi - hiển thị khi PENDING hoặc REJECTED
+            button(id='modal-btn-reply' class='px-4 py-2.5 rounded-full bg-blue-600 text-white font-semibold text-[13px] hover:bg-blue-700 flex items-center gap-1.5 shadow-md transition-all')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z')
+              | Duyệt & Gửi phản hồi
+            
+            //- Nút Sửa phản hồi - chỉ hiển thị khi APPROVED
+            button(id='modal-btn-edit-reply' class='px-4 py-2.5 rounded-full bg-blue-600 text-white font-semibold text-[13px] hover:bg-blue-700 flex items-center gap-1.5 shadow-md transition-all hidden')
+              svg(xmlns='http://www.w3.org/2000/svg' class='w-4 h-4' fill='none' viewBox='0 0 24 24' stroke='currentColor')
+                path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z')
+              | Sửa phản hồi

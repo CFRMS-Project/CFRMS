@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Cấu hình quét cho các thư viện Node.js (npm)
+  - package-ecosystem: "npm"
+    # Vị trí chứa file package.json (dấu "/" nghĩa là ở thư mục gốc)
+    directory: "/"
+    # Lên lịch quét định kỳ
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "Asia/Ho_Chi_Minh"
+    # Giới hạn số lượng PR mở cùng lúc
+    open-pull-requests-limit: 5
+    # Gắn label tự động cho PR
+    labels:
+      - "dependencies"
+      - "bot"
+    # Cấu hình gom nhóm PR (Cẩn thận thụt lề ở đây)
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    # Cấu hình bỏ qua bản cập nhật lớn
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

@@ -1,0 +1,58 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec tsx index.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "lint": "tsc --noEmit",
+    "test": "echo \"No tests yet\""
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CFRMS-Project/CFRMS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CFRMS-Project/CFRMS/issues"
+  },
+  "homepage": "https://github.com/CFRMS-Project/CFRMS#readme",
+  "description": "",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+
+    "@prisma/config": "^7.5.0",
+    "@types/ejs": "^3.1.5",
+    "@types/express-session": "^1.18.2",
+    "@types/multer": "^2.1.0",
+    "@types/streamifier": "^0.1.2",
+    "cloudinary": "^2.9.0",
+
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
+
+    "dotenv": "^17.3.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+
+    "express-session": "^1.19.0",
+    "multer": "^2.1.1",
+
+    "pg": "^8.20.0",
+    "prisma": "^7.5.0",
+    "pug": "^3.0.4",
+    "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,15 @@
+// Thay đổi nội dung prisma.config.js thành thế này:
+require("dotenv/config");
+const { defineConfig } = require("prisma/config");
+
+
+module.exports = defineConfig({
+  earlyAccess: true,
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: process.env["DATABASE_URL"],
+  },
+});

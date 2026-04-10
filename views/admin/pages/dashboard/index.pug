@@ -1,0 +1,276 @@
+extends ../../layouts/default.pug
+
+include ../../mixins/icons
+
+block styles
+  script(src="https://cdn.jsdelivr.net/npm/apexcharts" defer)
+  style.
+    .toggle-btn { transition: all .2s ease; }
+    .toggle-btn.active { background: #3067DF !important; color: #fff !important; border-color: transparent !important; }
+    .toggle-btn.inactive { background: transparent; color: #6b7280; border: 1.5px solid #e5e7eb; }
+    .star-row { transition: opacity .15s; }
+    .star-row:hover { opacity: .85; }
+    .progress-bar { transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+block content
+  //- ── 1. HEADER ────────────────────────────────────────────────
+  div.flex.justify-between.items-center.mb-8
+    div
+      h2.text-2xl.font-extrabold.text-gray-900 Dashboard Tổng quan
+      p.text-gray-400.mt-1.text-sm Theo dõi chỉ số đánh giá & cảm xúc khách hàng theo thời gian thực.
+    div.flex.gap-3.items-center
+      //- Hiển thị thứ, ngày tháng hiện tại
+      div.flex.items-center.gap-2.h-10.px-4.rounded-xl.border.border-gray-200.bg-white.text-gray-700(style="font-size:13.5px;")
+        +iconCalendar("h-4 w-4 text-gray-400")
+        span.font-semibold= currentDateLabel
+      //- Xuất báo cáo (CSV)
+      a.btn.btn-sm.h-10.px-5.rounded-xl.font-semibold.border-none.text-white.flex.items-center.gap-2(href="/admin/dashboard/export-csv" style="background:#3067DF;" class="hover:opacity-90")
+        +iconDownload("h-4 w-4")
+        | Xuất báo cáo
+
+  //- ── 3. LINE CHART ───────────────────────────────────────────
+  div.bg-white.rounded-2xl.border.border-gray-100.shadow-sm.p-7.mb-6
+    div.flex.justify-between.items-center.mb-5
+      div
+        p.text-xs.font-bold.text-gray-400.uppercase.tracking-widest.mb-1 Lưu lượng phản hồi
+        div.flex.items-baseline.gap-2
+          h2.text-3xl.font-extrabold.text-gray-900#chart-total-label= weeklyTotal
+          span.text-sm.text-gray-400#chart-period-label 7 ngày gần nhất
+      div(class="flex bg-gray-100 rounded-xl p-1 gap-1")
+        button#btn-week(class="toggle-btn active px-4 py-1.5 rounded-lg text-sm font-semibold") Tuần
+        button#btn-month(class="toggle-btn inactive px-4 py-1.5 rounded-lg text-sm font-semibold") Tháng
+    div#chart-line
+
+  //- ── 4. ROW: Phân bố + Tỉ lệ ảnh ───────────────────────────
+  div.grid.grid-cols-1.gap-6.mb-6(class="lg:grid-cols-2")
+
+    //- Phân bố Đánh giá
+    div.bg-white.p-7.rounded-2xl.border.border-gray-100.shadow-sm
+      h3.font-bold.text-gray-900.text-base.mb-5 Phân bố Đánh giá
+      div.flex.gap-6
+        //- Cột trái: progress bars
+        div.flex-1.flex.flex-col.gap-3
+          - var starColors = {'5':'#22c55e','4':'#4ade80','3':'#eab308','2':'#f97316','1':'#ef4444'}
+          each stars in [5, 4, 3, 2, 1]
+            div.star-row.flex.items-center.gap-3
+              span.text-xs.font-bold.text-gray-500(style="min-width:44px;")= stars + ' SAO'
+              div.flex-1.bg-gray-100.rounded-full(style="height:8px;")
+                div.progress-bar.rounded-full(style=`height:8px; width:${ratingPercent[stars]}%; background:${starColors[stars]};`)
+              span.text-xs.font-bold.text-gray-600(style="min-width:30px;text-align:right;")= ratingPercent[stars] + '%'
+        //- Cột phải: avgRating card
+        div.flex.flex-col.items-center.justify-center.rounded-2xl.px-6.py-4.flex-shrink-0(style="background:#f9fafb; min-width:130px;")
+          p.text-5xl.font-extrabold.text-gray-900.mb-2= avgRating
+          div(class="flex gap-0.5 mb-2")
+            - var filledStars = Math.round(avgRating)
+            each i in [1,2,3,4,5]
+              span(style=`font-size:18px; color:${i <= filledStars ? '#f59e0b' : '#e5e7eb'};`) ★
+          p.text-xs.font-semibold.text-gray-400.uppercase.tracking-wider= totalFeedbacks.toLocaleString('vi-VN') + ' REVIEWS'
+
+
+    //- Tỉ lệ kèm ảnh
+    div.bg-white.p-7.rounded-2xl.border.border-gray-100.shadow-sm.flex.flex-col
+      h3.font-bold.text-gray-900.text-base.mb-4 Tỉ lệ đánh giá kèm ảnh
+      div.flex.items-center.justify-around.flex-1
+        div#chart-donut(style="width:200px;flex-shrink:0;")
+        div.flex.flex-col.gap-5
+          //- Có ảnh
+          div.flex.items-center.gap-4
+            div.w-11.h-11.rounded-xl.flex.items-center.justify-center.flex-shrink-0(style="background:#EBF0FB;")
+              span.text-blue-600
+                +iconPhoto("h-5 w-5")
+            div
+              p.text-xs.text-gray-400.font-semibold.uppercase.tracking-wide Có ảnh / video
+              p.text-2xl.font-extrabold.text-gray-900= withMediaPercent + '%'
+          //- Chỉ văn bản
+          div.flex.items-center.gap-4
+            div.w-11.h-11.rounded-xl.flex.items-center.justify-center.flex-shrink-0(style="background:#F0FDF4;")
+              span.text-green-600
+                +iconTextFile("h-5 w-5")
+            div
+              p.text-xs.text-gray-400.font-semibold.uppercase.tracking-wide Chỉ văn bản
+              p.text-2xl.font-extrabold.text-gray-900= textOnlyPercent + '%'
+
+  //- ── 5. Đánh giá Mới nhất ────────────────────────────────────
+  div.bg-white.p-7.rounded-2xl.border.border-gray-100.shadow-sm
+    div.flex.justify-between.items-center.mb-5
+      h3.font-bold.text-gray-900.text-base Đánh giá Mới nhất
+      a.text-sm.text-blue-600.font-semibold(href="/admin/feedbacks" class="hover:underline") Xem tất cả
+
+    //- Header bảng
+    div.grid.grid-cols-12.text-xs.font-bold.text-gray-400.uppercase.tracking-wider.pb-3.border-b.border-gray-100
+      div.col-span-3 Khách hàng
+      div.col-span-2.text-center Đánh giá
+      div.col-span-5 Nội dung
+      div.col-span-2.text-right Ảnh
+
+    each fb in recentFeedbacks
+      div.grid.grid-cols-12.items-center.py-4.border-b.border-gray-50(class="last:border-0 hover:bg-gray-50/50 transition-colors rounded-xl -mx-1 px-1")
+        //- Khách hàng
+        div.col-span-3.flex.items-center.gap-3
+          if fb.user.avatar
+            img.w-10.h-10.rounded-full.object-cover.ring-2.ring-gray-100(src=fb.user.avatar alt=fb.user.name)
+          else
+            div.w-10.h-10.rounded-full.flex.items-center.justify-center.text-white.text-sm.font-bold.flex-shrink-0(style="background:linear-gradient(135deg,#3067DF,#60a5fa);")
+              = fb.user.name.charAt(0).toUpperCase()
+          div.min-w-0
+            p.font-semibold.text-gray-900.text-sm.truncate= fb.user.name
+            p.text-xs.text-gray-400= fb.createdAt.toLocaleDateString('vi-VN')
+
+        //- Sao
+        div(class="col-span-2 flex justify-center items-center gap-0.5")
+          - for(let i = 1; i <= 5; i++)
+            span(class=i <= fb.rating ? 'text-yellow-400' : 'text-gray-200' style="font-size:13px;") ★
+
+        //- Nội dung
+        div.col-span-5.text-sm.text-gray-500.pr-4.leading-snug
+          = fb.content.length > 90 ? fb.content.substring(0, 90) + '…' : fb.content
+
+        //- Ảnh
+        div.col-span-2.flex.justify-end
+          if fb.reviewMedia && fb.reviewMedia.length > 0
+            img.w-10.h-10.rounded-xl.object-cover.ring-2.ring-gray-100(src=fb.reviewMedia[0].url alt="media")
+          else
+            span.text-gray-200.text-xs —
+
+  //- ── SCRIPTS ─────────────────────────────────────────────────
+  script.
+    document.addEventListener('DOMContentLoaded', function () {
+      var weeklyLabels  = !{weeklyLabels};
+      var weeklyValues  = !{weeklyValues};
+      var weeklyTotal   = !{weeklyTotal};
+      var monthlyLabels = !{monthlyLabels};
+      var monthlyValues = !{monthlyValues};
+      var monthlyTotal  = !{monthlyTotal};
+
+      var chartTotalEl  = document.getElementById('chart-total-label');
+      var chartPeriodEl = document.getElementById('chart-period-label');
+
+      // ─── Shared line chart options ───────────────────────────
+      function buildSeries(labels, values) {
+        return {
+          series: [{ name: 'Phản hồi', data: values }],
+          xaxis : { categories: labels },
+        };
+      }
+
+      var lineOptions = {
+        chart: {
+          type: 'area',
+          height: 240,
+          toolbar: { show: false },
+          fontFamily: 'Inter, sans-serif',
+          animations: { enabled: true, easing: 'easeinout', speed: 500 },
+        },
+        series: [{ name: 'Phản hồi', data: weeklyValues }],
+        xaxis: {
+          categories: weeklyLabels,
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: { style: { colors: '#9ca3af', fontSize: '12px' } },
+        },
+        yaxis: {
+          min: 0,
+          labels: { style: { colors: '#9ca3af', fontSize: '12px' } },
+        },
+        stroke: { curve: 'smooth', width: 2.5, colors: ['#3067DF'] },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.3,
+            opacityTo: 0.01,
+            colorStops: [
+              { offset: 0,  color: '#3067DF', opacity: 0.3  },
+              { offset: 100, color: '#ffffff', opacity: 0.0 },
+            ],
+          },
+        },
+        dataLabels: { enabled: false },
+        grid: {
+          borderColor: '#f1f5f9',
+          strokeDashArray: 4,
+          xaxis: { lines: { show: false } },
+          padding: { left: 4, right: 4 },
+        },
+        markers: {
+          size: 5,
+          colors: ['#fff'],
+          strokeColors: '#3067DF',
+          strokeWidth: 2.5,
+          hover: { size: 7 },
+        },
+        tooltip: {
+          theme: 'light',
+          y: { formatter: function(v) { return v + ' phản hồi'; } },
+        },
+      };
+
+      var lineChart = new ApexCharts(document.querySelector('#chart-line'), lineOptions);
+      lineChart.render();
+
+      // ─── Toggle Tuần / Tháng ────────────────────────────────
+      var btnWeek  = document.getElementById('btn-week');
+      var btnMonth = document.getElementById('btn-month');
+
+      function setActive(btn, inactive) {
+        btn.classList.add('active');
+        btn.classList.remove('inactive');
+        inactive.classList.add('inactive');
+        inactive.classList.remove('active');
+      }
+
+      btnWeek.addEventListener('click', function () {
+        setActive(btnWeek, btnMonth);
+        lineChart.updateOptions(buildSeries(weeklyLabels, weeklyValues), true, true);
+        chartTotalEl.textContent  = weeklyTotal.toLocaleString('vi-VN');
+        chartPeriodEl.textContent = '7 ngày gần nhất';
+      });
+
+      btnMonth.addEventListener('click', function () {
+        setActive(btnMonth, btnWeek);
+        lineChart.updateOptions(buildSeries(monthlyLabels, monthlyValues), true, true);
+        chartTotalEl.textContent  = monthlyTotal.toLocaleString('vi-VN');
+        chartPeriodEl.textContent = '30 ngày gần nhất';
+      });
+
+      // ─── Donut Chart ─────────────────────────────────────────
+      var withMedia = !{withMediaPercent};
+      var textOnly  = !{textOnlyPercent};
+
+      var donutOptions = {
+        chart: { type: 'donut', height: 200, fontFamily: 'Inter, sans-serif' },
+        series: [withMedia, textOnly],
+        labels: ['Có ảnh', 'Chỉ văn bản'],
+        colors: ['#3067DF', '#4ade80'],
+        legend: { show: false },
+        dataLabels: { enabled: false },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '74%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Có ảnh',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#9ca3af',
+                  formatter: function () { return withMedia + '%'; },
+                },
+                value: {
+                  fontSize: '22px',
+                  fontWeight: 700,
+                  color: '#111827',
+                },
+              },
+            },
+          },
+        },
+        stroke: { width: 2, colors: ['#fff'] },
+        tooltip: { y: { formatter: function (v) { return v + '%'; } } },
+      };
+
+      var donutChart = new ApexCharts(document.querySelector('#chart-donut'), donutOptions);
+      donutChart.render();
+    });
