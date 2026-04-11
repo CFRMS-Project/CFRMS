@@ -6,7 +6,7 @@ import http from "http";
 // Nếu chạy Cypress trong Docker, nó sẽ đọc biến CYPRESS_DB_URL (trỏ tới container db-test).
 // Nếu chạy Cypress bằng npm (Local), nó sẽ dùng fallback localhost:5433
 const TEST_DB_URL =
-  process.env.CYPRESS_DB_URL || "postgresql://postgres:postgres@localhost:5433/cfrms_test";
+  process.env.CYPRESS_DB_URL || process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5433/cfrms_test";
 
 const BASE_URL = "http://localhost:3001";
 
@@ -79,7 +79,7 @@ export default defineConfig({
           try {
             // Bước 1: Reset schema (db push --force-reset xóa sạch DB và apply schema trực tiếp)
             execSync(
-              "npx prisma db push --force-reset --schema=prisma/schema.prisma",
+              "npx prisma db push --force-reset --accept-data-loss --schema=prisma/schema.prisma",
               opts
             );
 
