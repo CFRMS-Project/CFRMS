@@ -107,10 +107,10 @@ jobs:
       - name: 🔧 Generate Prisma Client
         run: npx prisma generate
 
-      # ── Step 6: Migrate DB test ──────────────────────────────
-      - name: 🗄️ Migrate Database (test)
-        run: npx prisma migrate deploy
-        # migrate deploy áp dụng migration files có sẵn (an toàn hơn reset)
+      # ── Step 6: Push DB test Schema ───────────────────────────
+      - name: 🗄️ Push Database Schema (test)
+        run: npx prisma db push --force-reset --accept-data-loss
+        # Apply schema directly to test database since there are no migration files
 
       # ── Step 7: Seed DB với test data ───────────────────────
       - name: 🌱 Seed Database (test data)
