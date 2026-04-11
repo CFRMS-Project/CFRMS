@@ -31,10 +31,18 @@ jobs:
         
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Bản chuẩn định ổn định thay vì v6 (v6 chưa có)
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cài đặt Node modules
+        run: npm ci
 
       - name: Tạo file .env.test giả lập 
-        # Cần file này vì script `npm run dev:test` của bạn có xài dotenv -e .env.test
         run: |
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/cfrms_test" > .env.test
           echo "PORT=3001" >> .env.test
@@ -43,17 +51,29 @@ jobs:
           echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY || 'mock' }}" >> .env.test
           echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET || 'mock' }}" >> .env.test
 
+      # TÁCH RỜI BƯỚC PREPARE DATABASE CHO RÕ RÀNG VÀ CHẮC CHẮN
+      - name: Chuẩn bị Database (Generate, Push Schema)
+        run: |
+          npx prisma generate
+          # Dùng dotenv để load chính xác .env.test, tránh lỗi không tìm thấy bảng
+          npx dotenv -e .env.test -- npx prisma db push --force-reset --accept-data-loss
+          # Seed dữ liệu mẫu (tuỳ chọn vì Cypress db:reset cũng sẽ gọi ở mỗi file spec)
+          npx dotenv -e .env.test -- npx tsx prisma/seed.test.ts
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          # Sinh Prisma Client VÀ Push Schema lên DB trước khi bật Server Test
-          build: npx prisma generate && npx prisma db push --force-reset --accept-data-loss
-          # Sửa lại lệnh boot server thành lệnh chạy cho môi trường Test
+          # Đã build và push db ở step trên, không cần build lại
+          install: false
+          # Bật server test
           start: npm run dev:test
-          # Sửa Port thành 3001 cho đúng với cypress.config.ts
+          # Chờ server test sẵn sàng trên port 3001
           wait-on: 'http://localhost:3001'
+          wait-on-timeout: 120
           record: true
           parallel: true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Truyền thêm biến môi trường cho chắc chắn Server không bị thiếu
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/cfrms_test
