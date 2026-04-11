@@ -46,8 +46,8 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          # Sinh Prisma Client trước khi chạy Server
-          build: npx prisma generate
+          # Sinh Prisma Client VÀ Push Schema lên DB trước khi bật Server Test
+          build: npx prisma generate && npx prisma db push --force-reset --accept-data-loss
           # Sửa lại lệnh boot server thành lệnh chạy cho môi trường Test
           start: npm run dev:test
           # Sửa Port thành 3001 cho đúng với cypress.config.ts
