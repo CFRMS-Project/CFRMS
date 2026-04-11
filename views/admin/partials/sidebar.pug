@@ -66,9 +66,9 @@ aside.sidebar.w-70.bg-white.border-r.border-gray-100.p-6.flex.flex-col
       div.w-12.h-12.rounded-full.bg-orange-100.flex.items-center.justify-center.text-orange-500.flex-shrink-0
         +iconUser()
       // Thông tin tên và vai trò
-      div
-        p.font-bold.text-gray-900.line-clamp-1 Đặng Công Quân
+      div.overflow-hidden
+        p.font-bold.text-gray-900.truncate= currentUser ? currentUser.name : 'Admin'
         p.text-xs.text-gray-500.font-medium Quản trị viên
       // Biểu tượng đăng xuất
-      a(href="/auth/logout", class="ml-auto text-gray-400 hover:text-blue-600", title="Đăng xuất")
+      a(href="/logout", class="ml-auto text-gray-400 hover:text-red-500 transition-colors", title="Đăng xuất")
         +iconLogout()

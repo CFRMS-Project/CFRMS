@@ -1,0 +1,21 @@
+{
+  "customer": {
+    "username": "customer01",
+    "password": "123",
+    "name": "Nguyễn Văn An"
+  },
+  "customer2": {
+    "username": "customer02",
+    "password": "123",
+    "name": "Trần Thị Bích"
+  },
+  "admin": {
+    "username": "admin",
+    "password": "123",
+    "name": "Admin CFRMS"
+  },
+  "invalid": {
+    "username": "wrong_user",
+    "password": "wrong_pass"
+  }
+}

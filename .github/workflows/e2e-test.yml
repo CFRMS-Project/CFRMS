@@ -1,0 +1,224 @@
+# =============================================================
+# Workflow: Cypress E2E Test Gate cho Pull Request
+# =============================================================
+# Mục đích:
+#   Tự động chạy 48 Cypress E2E test cases khi ai đó tạo PR
+#   vào nhánh develop hoặc main. Chỉ cho phép Merge khi "Xanh".
+#
+# Kiến trúc:
+#   GitHub Actions Runner (ubuntu-latest)
+#   ├── service: postgres:16  → DB test độc lập (port 5432)
+#   ├── job: e2e-test
+#   │   ├── install & generate prisma client
+#   │   ├── migrate DB test
+#   │   ├── seed DB test (tạo seed-data.json)
+#   │   ├── start web server (background, port 3001)
+#   │   └── cypress run (48 tests)
+#   └── job: slack-notify (luôn chạy)
+#       └── Thông báo kết quả
+#
+# Branch Protection Rule cần cấu hình tay trên GitHub:
+#   Settings → Branches → Add rule → develop/main
+#   ☑ Require status checks to pass before merging
+#   ☑ Require branches to be up to date before merging
+#   → Chọn status check: "e2e-test"
+# =============================================================
+
+name: 🧪 Cypress E2E – PR Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    # Chạy lại khi PR được cập nhật (thêm commit mới)
+    types: [opened, synchronize, reopened]
+
+# Hủy run cũ cùng PR nếu có commit mới push lên
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1: e2e-test – Chạy toàn bộ 48 Cypress test cases
+  # ────────────────────────────────────────────────────────────
+  e2e-test:
+    name: 🧪 E2E Tests (48 cases)
+    runs-on: ubuntu-latest
+
+    # ── PostgreSQL Service Container ─────────────────────────
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cfrms_test
+        ports:
+          - 5432:5432
+        # Chờ cho đến khi PostgreSQL sẵn sàng nhận kết nối
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # ── Environment Variables ─────────────────────────────────
+    env:
+      # DB test: trỏ đến postgres service container bên trên
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/cfrms_test"
+      PORT: 3001
+      SESSION_SECRET: "ci-test-secret-key"
+      # Cloudinary – sẽ bị mock bởi cy.intercept(), không cần thật
+      CLOUDINARY_CLOUD_NAME: "test-cloud"
+      CLOUDINARY_API_KEY: "000000000000000"
+      CLOUDINARY_API_SECRET: "test-secret"
+      CLOUDINARY_UPLOAD_PRESET: "test-preset"
+      # Cypress
+      CYPRESS_BASE_URL: "http://localhost:3001"
+
+    steps:
+      # ── Step 1: Checkout code ───────────────────────────────
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # ── Step 2: Setup Node.js ───────────────────────────────
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # ── Step 3: Cache Cypress binary ────────────────────────
+      - name: 📦 Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      # ── Step 4: Install dependencies ────────────────────────
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      # ── Step 5: Generate Prisma Client ──────────────────────
+      - name: 🔧 Generate Prisma Client
+        run: npx prisma generate
+
+      # ── Step 6: Push DB test Schema ───────────────────────────
+      - name: 🗄️ Push Database Schema (test)
+        run: npx prisma db push --force-reset --accept-data-loss
+        # Apply schema directly to test database since there are no migration files
+
+      # ── Step 7: Seed DB với test data ───────────────────────
+      - name: 🌱 Seed Database (test data)
+        run: npx tsx prisma/seed.test.ts
+        # Tạo ra cypress/fixtures/seed-data.json với IDs động
+
+      # ── Step 8: Start web server (background) ───────────────
+      - name: 🚀 Start web server (background)
+        run: |
+          npx tsx index.ts &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+        # Dùng & để chạy background, lưu PID để kill sau
+
+      # ── Step 9: Wait for server to be ready ─────────────────
+      - name: ⏳ Wait for server ready (port 3001)
+        run: |
+          echo "Đang chờ server khởi động tại http://localhost:3001..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3001/customer/home > /dev/null 2>&1; then
+              echo "✅ Server sẵn sàng sau $i giây"
+              exit 0
+            fi
+            echo "  Lần thử $i/30 – chờ 2 giây..."
+            sleep 2
+          done
+          echo "❌ Server không khởi động được sau 60 giây"
+          exit 1
+
+      # ── Step 10: Run Cypress E2E Tests ───────────────────────
+      - name: 🧪 Run Cypress E2E Tests
+        uses: cypress-io/github-action@v6
+        with:
+          # Không cần start server vì đã làm ở step 8
+          browser: chrome
+          headed: false
+          # Chạy toàn bộ test
+          spec: "cypress/e2e/**/*.cy.ts"
+          # Cài thêm browser chrome nếu chưa có
+          install: false
+        env:
+          CYPRESS_BASE_URL: "http://localhost:3001"
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+
+      # ── Step 11: Upload Screenshots nếu test FAIL ────────────
+      - name: 📸 Upload screenshots (khi test fail)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots-pr-${{ github.event.pull_request.number }}
+          path: cypress/screenshots/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # ── Step 12: Upload Videos nếu test FAIL ─────────────────
+      - name: 🎬 Upload videos (khi test fail)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-videos-pr-${{ github.event.pull_request.number }}
+          path: cypress/videos/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # ── Step 13: Dọn dẹp server ──────────────────────────────
+      - name: 🧹 Stop web server
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill $SERVER_PID 2>/dev/null || true
+            echo "✅ Đã dừng server (PID: $SERVER_PID)"
+          fi
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2: slack-notify – Thông báo kết quả lên Slack
+  # Luôn chạy, dù e2e-test pass hay fail
+  # ────────────────────────────────────────────────────────────
+  slack-notify:
+    name: 📣 Slack Notification
+    runs-on: ubuntu-latest
+    needs: e2e-test
+    # Luôn chạy kể cả khi e2e-test fail
+    if: always()
+
+    steps:
+      - name: 📣 Notify Slack – E2E Result
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_COLOR: >-
+            ${{
+              needs.e2e-test.result == 'success' && '#36A64F' ||
+              needs.e2e-test.result == 'cancelled' && '#FFA500' ||
+              '#FF0000'
+            }}
+          SLACK_TITLE: >-
+            ${{
+              needs.e2e-test.result == 'success' &&
+              '✅ E2E PASS – PR #${{ github.event.pull_request.number }} được phép Merge' ||
+              needs.e2e-test.result == 'cancelled' &&
+              '⚠️ E2E HỦY – PR #${{ github.event.pull_request.number }}' ||
+              '❌ E2E FAIL – PR #${{ github.event.pull_request.number }} CHƯA được Merge'
+            }}
+          SLACK_MESSAGE: |
+            *PR:* #${{ github.event.pull_request.number }} – ${{ github.event.pull_request.title }}
+            *Tác giả:* ${{ github.event.pull_request.user.login }}
+            *Nhánh:* `${{ github.head_ref }}` → `${{ github.base_ref }}`
+            *Kết quả E2E:* ${{ needs.e2e-test.result == 'success' && '🟢 48/48 PASS' || '🔴 FAIL' }}
+            *Chi tiết:* ${{ github.event.pull_request.html_url }}/checks
+          SLACK_USERNAME: "CFRMS E2E Bot"
+          SLACK_ICON_EMOJI: ":cypress:"
+          SLACK_FOOTER: "CFRMS · GitHub Actions · Cypress E2E"
