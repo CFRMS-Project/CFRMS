@@ -1,0 +1,27 @@
+{
+  "valid": {
+    "rating": 5,
+    "content": "Sản phẩm rất tốt, chất lượng vượt mong đợi, giao hàng nhanh chóng.",
+    "tags": "Giao nhanh, Đóng gói kỹ, Đúng mô tả"
+  },
+  "short": {
+    "rating": 4,
+    "content": "Sản phẩm OK",
+    "tags": ""
+  },
+  "anonymous": {
+    "rating": 5,
+    "content": "Tôi muốn đánh giá ẩn danh về sản phẩm này.",
+    "tags": "Chất lượng tốt",
+    "isAnonymous": true
+  },
+  "noContent": {
+    "rating": 3,
+    "content": ""
+  },
+  "updated": {
+    "rating": 3,
+    "content": "Sau khi dùng thêm, tôi thấy sản phẩm chỉ ở mức trung bình.",
+    "tags": "Chất lượng trung bình"
+  }
+}

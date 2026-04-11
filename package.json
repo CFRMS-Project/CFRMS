@@ -5,11 +5,19 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec tsx index.ts",
+    "dev:test": "dotenv -e .env.test -- nodemon --ignore cypress/ --ignore prisma/seed.test.ts --exec tsx index.ts",
     "build": "tsc",
     "start": "node dist/app.js",
     "lint": "tsc --noEmit",
-    "test": "echo \"No tests yet\""
-},
+    "test": "npm run cy:run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:auth": "cypress run --spec 'cypress/e2e/auth/**'",
+    "cy:run:customer": "cypress run --spec 'cypress/e2e/customer/**'",
+    "cy:run:admin": "cypress run --spec 'cypress/e2e/admin/**'",
+    "cy:db:reset": "dotenv -e .env.test -- npx prisma db push --force-reset --schema=prisma/schema.prisma && dotenv -e .env.test -- npx tsx prisma/seed.test.ts",
+    "cy:db:seed": "dotenv -e .env.test -- npx tsx prisma/seed.test.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/CFRMS-Project/CFRMS.git"
@@ -24,24 +32,19 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
-
     "@prisma/config": "^7.5.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/ejs": "^3.1.5",
     "@types/express-session": "^1.18.2",
     "@types/multer": "^2.1.0",
     "@types/streamifier": "^0.1.2",
-    "cloudinary": "^2.9.0",
-
-    "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
-
+    "cloudinary": "^2.9.0",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
-
     "express-session": "^1.19.0",
     "multer": "^2.1.1",
-
     "pg": "^8.20.0",
     "prisma": "^7.5.0",
     "pug": "^3.0.4",
@@ -50,6 +53,9 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
+    "cross-env": "^10.1.0",
+    "cypress": "^15.13.1",
+    "dotenv-cli": "^11.0.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

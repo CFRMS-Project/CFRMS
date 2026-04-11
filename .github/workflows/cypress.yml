@@ -1,0 +1,59 @@
+name: Cypress Tests
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    
+    # 1. BẮT BUỘC: Cần có Database test trên CI
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cfrms_test
+        ports:
+          - 5433:5432 # Map ra port 5433 để khớp với TEST_DB_URL
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2] # Chạy song song 2 luồng
+        
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # Bản chuẩn định ổn định thay vì v6 (v6 chưa có)
+
+      - name: Tạo file .env.test giả lập 
+        # Cần file này vì script `npm run dev:test` của bạn có xài dotenv -e .env.test
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/cfrms_test" > .env.test
+          echo "PORT=3001" >> .env.test
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET || 'fallback_secret_ci' }}" >> .env.test
+          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME || 'mock' }}" >> .env.test
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY || 'mock' }}" >> .env.test
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET || 'mock' }}" >> .env.test
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          # Sinh Prisma Client trước khi chạy Server
+          build: npx prisma generate
+          # Sửa lại lệnh boot server thành lệnh chạy cho môi trường Test
+          start: npm run dev:test
+          # Sửa Port thành 3001 cho đúng với cypress.config.ts
+          wait-on: 'http://localhost:3001'
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
