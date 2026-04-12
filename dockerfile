@@ -1,25 +1,20 @@
 # ============================================================
-# Stage 1: Builder — cài đặt dependencies và biên dịch TS→JS
+# Stage 1: Builder — cài đặt dependencies và generate Prisma
 # ============================================================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files và cài đặt TẤT CẢ dependencies (bao gồm devDependencies)
 COPY package*.json ./
 RUN npm ci
 
-# Copy toàn bộ source code
 COPY . .
 
-# Biên dịch TypeScript → JavaScript (output vào dist/)
-RUN npm run build
-
-# Generate Prisma Client dựa trên schema
+# Generate Prisma Client
 RUN npx prisma generate
 
 # ============================================================
-# Stage 2: Production — chỉ giữ những gì cần thiết để chạy
+# Stage 2: Production — chạy app bằng tsx (tránh ESM import issues)
 # ============================================================
 FROM node:20-alpine AS production
 
@@ -28,18 +23,26 @@ USER node
 
 WORKDIR /app
 
-# Copy package files và cài chỉ production dependencies
+# Copy node_modules (đã có tsx + prisma client từ builder)
 COPY --chown=node:node package*.json ./
-RUN npm ci --omit=dev
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 
-# Copy các artifacts cần thiết từ Builder stage
-COPY --chown=node:node --from=builder /app/dist ./dist
-COPY --chown=node:node --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# Copy source code và các assets cần thiết
+COPY --chown=node:node index.ts ./
+COPY --chown=node:node tsconfig.json ./
+COPY --chown=node:node prisma.config.ts ./
 COPY --chown=node:node prisma ./prisma
+COPY --chown=node:node routes ./routes
+COPY --chown=node:node controllers ./controllers
+COPY --chown=node:node middlewares ./middlewares
+COPY --chown=node:node helpers ./helpers
+COPY --chown=node:node utils ./utils
+COPY --chown=node:node validators ./validators
+COPY --chown=node:node config ./config
 COPY --chown=node:node public ./public
 COPY --chown=node:node views ./views
 
 EXPOSE 3000
 
-# Chạy migrate (sync schema) rồi khởi động app
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Dùng tsx thay vì node dist/ để tránh lỗi ESM module resolution
+CMD ["npx", "tsx", "index.ts"]

@@ -27,12 +27,16 @@ services:
       - "3001:3000"
     env_file:
       - .env.test
+    environment:
+      # Override DATABASE_URL từ .env.test (localhost:5433 → db-test:5432 trong Docker network)
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
     depends_on:
       db-test:
         condition: service_healthy
-    # Override CMD: migrate → seed → start server
+    # Override CMD: tạo thư mục cần thiết → migrate → seed → start server
     command: >
       sh -c "
+        mkdir -p cypress/fixtures &&
         npx prisma db push --schema=prisma/schema.prisma &&
         npx tsx prisma/seed.test.ts &&
         npm run dev:test
