@@ -1,0 +1,20 @@
+{
+  "asset_id": "mock-asset-id-12345",
+  "public_id": "cfrms-project/mock-image",
+  "version": 1700000000,
+  "version_id": "mock-version-id",
+  "signature": "mock-signature",
+  "width": 800,
+  "height": 600,
+  "format": "jpg",
+  "resource_type": "image",
+  "created_at": "2024-01-01T00:00:00Z",
+  "tags": [],
+  "bytes": 102400,
+  "type": "upload",
+  "etag": "mock-etag",
+  "placeholder": false,
+  "url": "http://res.cloudinary.com/test-cloud/image/upload/v1700000000/cfrms-project/mock-image.jpg",
+  "secure_url": "https://res.cloudinary.com/test-cloud/image/upload/v1700000000/cfrms-project/mock-image.jpg",
+  "original_filename": "test-image"
+}

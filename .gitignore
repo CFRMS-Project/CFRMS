@@ -27,3 +27,9 @@ yarn-error.log*
 
 # Bỏ qua thư mục sinh ra khi test (nếu sau này bạn dùng thêm tool)
 coverage/
+
+# Cypress – Auto-generated files (không commit)
+cypress/fixtures/seed-data.json
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
