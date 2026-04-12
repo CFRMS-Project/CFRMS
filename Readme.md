@@ -95,4 +95,5 @@ Dự án sử dụng Cypress + Docker để mô phỏng môi trường tách bi�
 
   ```bash
   docker-compose -f docker-compose.test.yml up --abort-on-container-exit
-  ```
+  ```
+// Update CI/CD testing
