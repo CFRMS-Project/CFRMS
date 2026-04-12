@@ -1,4 +1,5 @@
 services:
+  # ─── Database (PostgreSQL dành riêng cho môi trường Test) ───────────────────
   db-test:
     image: postgres:16-alpine
     container_name: cfrms_db_test
@@ -12,24 +13,50 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
+  # ─── Web App (dùng stage builder vì cần tsx/nodemon để chạy dev:test) ────────
   web-test:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfile
+      # Dùng stage builder vì cần tsx/nodemon để chạy dev:test
+      target: builder
     container_name: cfrms_web_test
     ports:
       - "3001:3000"
     env_file:
       - .env.test
+    environment:
+      # Override DATABASE_URL từ .env.test (localhost:5433 → db-test:5432 trong Docker network)
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
     depends_on:
       db-test:
         condition: service_healthy
+    # Override CMD: tạo thư mục cần thiết → migrate → seed → start server
+    command: >
+      sh -c "
+        mkdir -p cypress/fixtures &&
+        npx prisma db push --schema=prisma/schema.prisma &&
+        npx tsx prisma/seed.test.ts &&
+        npm run dev:test
+      "
+    # Healthcheck: chờ HTTP server thực sự sẵn sàng trước khi Cypress bắt đầu
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
 
+  # ─── Cypress E2E Test Runner ─────────────────────────────────────────────────
   cypress:
     image: "cypress/included:latest"
     container_name: cfrms_cypress
     depends_on:
-      - web-test
+      web-test:
+        # Chờ web-test HEALTHY (server đã thực sự nhận được request) mới bắt đầu test
+        condition: service_healthy
     environment:
       - CYPRESS_baseUrl=http://web-test:3000
       # Để Cypress gọi Prisma kết nối được DB Test khi chạy ngầm bằng Docker

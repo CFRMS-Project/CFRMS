@@ -1,0 +1,41 @@
+# Các thư mục/file không cần copy vào Docker Image
+# → giảm dung lượng và tăng tốc độ build
+
+# Node modules (sẽ được cài lại trong container)
+node_modules
+
+# Source maps và TypeScript build cache
+dist
+*.tsbuildinfo
+
+# Git
+.git
+.gitignore
+.github
+
+# Testing
+cypress
+cypress.config.ts
+
+# Environment files (inject qua docker-compose)
+.env
+.env.*
+
+# Logs
+*.log
+logs
+
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Docker config bản thân (không cần trong image)
+dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Readme
+Readme.md
+LICENSE
