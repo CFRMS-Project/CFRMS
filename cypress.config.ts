@@ -8,7 +8,9 @@ import http from "http";
 const TEST_DB_URL =
   process.env.CYPRESS_DB_URL || process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5433/cfrms_test";
 
-const BASE_URL = "http://localhost:3001";
+// Nếu chạy trong Docker, CYPRESS_baseUrl được set bởi docker-compose (http://web-test:3000)
+// Nếu chạy local, fallback về localhost:3001
+const BASE_URL = process.env.CYPRESS_baseUrl ?? "http://localhost:3001";
 
 /**
  * Poll server cho đến khi nhận được HTTP response (bất kỳ status nào).

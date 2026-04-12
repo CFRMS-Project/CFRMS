@@ -1,14 +1,12 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfile
+      target: production
+    container_name: cfrms_web
     ports:
       - "3000:3000"
-  cypress:
-    image: "cypress/included:latest"
-    depends_on:
-      - web
-    environment:
-      - CYPRESS_baseUrl=http://web:3000
-    working_dir: /e2e
-    volumes:
-      - ./:/e2e
+    env_file:
+      - .env
+    restart: unless-stopped

@@ -7,7 +7,7 @@
     "dev": "nodemon --exec tsx index.ts",
     "dev:test": "dotenv -e .env.test -- nodemon --ignore cypress/ --ignore prisma/seed.test.ts --exec tsx index.ts",
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "node dist/index.js",
     "lint": "tsc --noEmit",
     "test": "npm run cy:run",
     "cy:open": "cypress open",
