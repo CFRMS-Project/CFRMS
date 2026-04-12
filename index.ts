@@ -44,28 +44,34 @@ app.get("/", (_req, res) => {
   res.redirect("/customer/home");
 });
 
-// --- API Hỗ trợ Test (Chỉ bật trong môi trường Test) ---
-console.log("[Test API] Kiểm tra bật API Reset. DATABASE_URL:", process.env.DATABASE_URL?.substring(0, 30) + "..., PORT:", process.env.PORT);
+// --- API Hỗ trợ Test (Chỉ bật khi NODE_ENV=test VÀ ENABLE_TEST_RESET_API=true) ---
+// Phải đặt cả 2 biến môi trường này một cách chủ động để tránh vô tình bật trong staging/production.
+const enableTestResetApi =
+  process.env.NODE_ENV === "test" &&
+  process.env.ENABLE_TEST_RESET_API === "true";
 
-if (process.env.PORT === "3001" || (process.env.DATABASE_URL && process.env.DATABASE_URL.includes("test"))) {
-  console.log("[Test API] API /api/test/reset ĐÃ ĐƯỢC BẬT!");
-  app.post("/api/test/reset", (_req, res) => {
+if (enableTestResetApi) {
+  console.log("[Test API] API /api/test/reset đã được bật (NODE_ENV=test, ENABLE_TEST_RESET_API=true).");
+
+  app.post("/api/test/reset", (req, res) => {
+    // Kiểm tra secret token để tránh bị gọi từ bên ngoài trái phép
+    const token = process.env.TEST_RESET_TOKEN;
+    if (!token || req.get("x-test-reset-token") !== token) {
+      return res.sendStatus(403);
+    }
+
     import("child_process")
       .then(({ execSync }) => {
         try {
-          console.log("[Test API] Bắt đầu reset schema...");
           execSync("npx prisma db push --force-reset --accept-data-loss --schema=prisma/schema.prisma", { stdio: "inherit" });
-          console.log("[Test API] Bắt đầu seed data...");
           execSync("npx tsx prisma/seed.test.ts", { stdio: "inherit" });
           res.status(200).send("OK");
-        } catch (error: any) {
-          console.error("[Test API] Lỗi:", error);
-          res.status(500).send(error.toString());
+        } catch {
+          // Không leak chi tiết lỗi nội bộ ra client
+          res.status(500).send("Reset failed. Check server logs.");
         }
       })
-      .catch((err) => {
-        res.status(500).send("Cannot load child_process: " + err);
-      });
+      .catch(() => res.status(500).send("Internal error."));
   });
 }
 

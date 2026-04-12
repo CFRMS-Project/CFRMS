@@ -30,6 +30,9 @@ services:
     environment:
       # Override DATABASE_URL từ .env.test (localhost:5433 → db-test:5432 trong Docker network)
       - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
+      # Bắt buộc khai báo rõ ràng để bật API reset (bảo mật: không có trong .env sản phẩm)
+      - NODE_ENV=test
+      - ENABLE_TEST_RESET_API=true
     depends_on:
       db-test:
         condition: service_healthy
@@ -62,6 +65,8 @@ services:
       - CYPRESS_baseUrl=http://web-test:3001
       # Để Cypress gọi Prisma kết nối được DB Test khi chạy ngầm bằng Docker
       - CYPRESS_DB_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
+      # Token bí mật để gọi /api/test/reset (phải khớp với TEST_RESET_TOKEN trên server)
+      - CYPRESS_TEST_RESET_TOKEN=cfrms-test-reset-secret-2024
     working_dir: /e2e
     volumes:
       - ./:/e2e
