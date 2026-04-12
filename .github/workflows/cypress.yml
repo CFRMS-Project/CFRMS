@@ -42,10 +42,17 @@ jobs:
       - name: Cài đặt Node modules
         run: npm ci
 
-      - name: Tạo file .env.test giả lập 
+      - name: Tạo file .env.test giả lập
         run: |
+          # Sinh token ngẫu nhiên cho API reset (tránh hardcode)
+          RESET_TOKEN=$(openssl rand -hex 16)
+          echo "TEST_RESET_TOKEN=$RESET_TOKEN" >> $GITHUB_ENV
+
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/cfrms_test" > .env.test
           echo "PORT=3001" >> .env.test
+          echo "NODE_ENV=test" >> .env.test
+          echo "ENABLE_TEST_RESET_API=true" >> .env.test
+          echo "TEST_RESET_TOKEN=$RESET_TOKEN" >> .env.test
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET || 'fallback_secret_ci' }}" >> .env.test
           echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME || 'mock' }}" >> .env.test
           echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY || 'mock' }}" >> .env.test
@@ -65,10 +72,10 @@ jobs:
         with:
           # Đã build và push db ở step trên, không cần build lại
           install: false
-          # Bật server test
-          start: npm run dev:test
+          # Bật server test (dotenv đọc .env.test có NODE_ENV=test + ENABLE_TEST_RESET_API=true)
+          start: npx dotenv -e .env.test -- npx tsx index.ts
           # Chờ server test sẵn sàng trên port 3001
-          wait-on: 'http://localhost:3001'
+          wait-on: 'http://localhost:3001/login'
           wait-on-timeout: 120
           record: true
           parallel: true
@@ -77,3 +84,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Truyền thêm biến môi trường cho chắc chắn Server không bị thiếu
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/cfrms_test
+          NODE_ENV: test
+          ENABLE_TEST_RESET_API: "true"
+          # Token động được sinh ở bước trên và lưu vào $GITHUB_ENV
+          TEST_RESET_TOKEN: ${{ env.TEST_RESET_TOKEN }}
+          CYPRESS_TEST_RESET_TOKEN: ${{ env.TEST_RESET_TOKEN }}
