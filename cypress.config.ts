@@ -69,11 +69,11 @@ export default defineConfig({
         "db:reset": async () => {
           console.log(`[db:reset] Đang gửi yêu cầu reset DB tới ${BASE_URL}/api/test/reset...`);
 
-          // Đọc token từ env (Docker truyền qua CYPRESS_TEST_RESET_TOKEN, local đọc từ .env.test)
+          // Đọc token từ env
           const resetToken =
             process.env.CYPRESS_TEST_RESET_TOKEN ||
             process.env.TEST_RESET_TOKEN ||
-            "cfrms-test-reset-secret-2024";
+            "";
 
           try {
             await new Promise((resolve, reject) => {

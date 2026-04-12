@@ -33,6 +33,7 @@ services:
       # Bắt buộc khai báo rõ ràng để bật API reset (bảo mật: không có trong .env sản phẩm)
       - NODE_ENV=test
       - ENABLE_TEST_RESET_API=true
+      # TEST_RESET_TOKEN được đọc tự động từ env_file (.env.test ở trên) – không hardcode
     depends_on:
       db-test:
         condition: service_healthy
@@ -61,12 +62,16 @@ services:
       web-test:
         # Chờ web-test HEALTHY (server đã thực sự nhận được request) mới bắt đầu test
         condition: service_healthy
+    # Đọc token từ .env.test (gitignored) để Cypress nhận được TEST_RESET_TOKEN
+    # mà không cần hardcode giá trị vào đây
+    env_file:
+      - .env.test
     environment:
       - CYPRESS_baseUrl=http://web-test:3001
       # Để Cypress gọi Prisma kết nối được DB Test khi chạy ngầm bằng Docker
       - CYPRESS_DB_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
-      # Token bí mật để gọi /api/test/reset (phải khớp với TEST_RESET_TOKEN trên server)
-      - CYPRESS_TEST_RESET_TOKEN=cfrms-test-reset-secret-2024
+      # TEST_RESET_TOKEN được đọc từ env_file (.env.test) ở trên
+      # cypress.config.ts sẽ dùng process.env.TEST_RESET_TOKEN để lấy token này
     working_dir: /e2e
     volumes:
       - ./:/e2e
