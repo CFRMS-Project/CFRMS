@@ -1,0 +1,124 @@
+# =============================================================
+# Workflow: CD – Deploy lên Azure VM qua SSH
+# =============================================================
+# Mục đích:
+#   SSH vào Azure VM, pull code mới nhất và restart Docker container.
+#
+# Luồng:
+#   Push vào main → SSH vào VM → git pull → docker compose up --build -d
+#
+# Cần thiết lập GitHub Secrets:
+#   VM_HOST        – IP public của Azure VM (vd: 20.188.x.x)
+#   VM_USERNAME    – Username SSH (vd: azureuser)
+#   VM_PASSWORD    – Password của VM (đặt khi tạo VM trên Azure)
+#   VM_PORT        – Port SSH (thường là 22, có thể bỏ qua nếu dùng 22)
+#   SLACK_WEBHOOK_URL – Webhook URL của Slack channel (đã có)
+#
+# Lưu ý:
+#   - Đảm bảo VM đã bật xác thực bằng Password (Password Authentication)
+#   - Azure VM mặc định có thể tắt SSH password auth, xem bên dưới cách bật
+# =============================================================
+
+name: 🚀 CD – Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+  # Cho phép trigger thủ công từ GitHub UI
+  workflow_dispatch:
+
+# Chỉ cho phép 1 deploy chạy cùng lúc, hủy deploy cũ nếu có deploy mới
+concurrency:
+  group: cd-vm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1: deploy – SSH vào VM và deploy
+  # ────────────────────────────────────────────────────────────
+  deploy:
+    name: 🖥️ Deploy to Azure VM via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Step 1: Checkout (để lấy thông tin commit) ────────
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # ── Step 2: SSH vào VM và chạy deploy script ─────────
+      - name: 🚀 SSH Deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          password: ${{ secrets.VM_PASSWORD }}
+          port: ${{ secrets.VM_PORT || 22 }}
+          # Timeout kết nối
+          connect_timeout: 30s
+          # Script chạy trên VM
+          script: |
+            set -e  # Dừng ngay nếu có lỗi
+
+            echo "=============================="
+            echo "🚀 Bắt đầu deploy CFRMS"
+            echo "Thời gian: $(date)"
+            echo "=============================="
+
+            # Di chuyển vào thư mục project (đổi theo đường dẫn thực tế trên VM)
+            cd ~/CFRMS
+
+            echo "📥 Pull code mới nhất từ nhánh main..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "🐳 Dừng container cũ..."
+            docker compose down || true
+
+            echo "🔨 Build và khởi động container mới..."
+            docker compose up --build -d
+
+            echo "🧹 Dọn dẹp Docker images cũ (tiết kiệm dung lượng)..."
+            docker image prune -f
+
+            echo "✅ Deploy hoàn thành!"
+            echo "Container đang chạy:"
+            docker ps --filter "name=cfrms"
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2: slack-notify – Thông báo kết quả deploy
+  # ────────────────────────────────────────────────────────────
+  slack-notify:
+    name: 📣 Slack Notification
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+
+    steps:
+      - name: 📣 Notify Slack – Deploy Result
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_COLOR: >-
+            ${{
+              needs.deploy.result == 'success' && '#36A64F' ||
+              needs.deploy.result == 'cancelled' && '#FFA500' ||
+              '#FF0000'
+            }}
+          SLACK_TITLE: >-
+            ${{
+              needs.deploy.result == 'success' &&
+              '🚀 DEPLOY THÀNH CÔNG – CFRMS lên Azure VM' ||
+              needs.deploy.result == 'cancelled' &&
+              '⚠️ DEPLOY BỊ HỦY – CFRMS' ||
+              '❌ DEPLOY THẤT BẠI – CFRMS'
+            }}
+          SLACK_MESSAGE: |
+            *Nhánh:* `main`
+            *Commit:* `${{ github.sha }}`
+            *Tác giả:* ${{ github.actor }}
+            *Kết quả:* ${{ needs.deploy.result == 'success' && '✅ App đang chạy trên Azure VM' || '🔴 Kiểm tra log tại GitHub Actions' }}
+            *Chi tiết:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SLACK_USERNAME: "CFRMS Deploy Bot"
+          SLACK_ICON_EMOJI: ":rocket:"
+          SLACK_FOOTER: "CFRMS · GitHub Actions · Azure VM"
