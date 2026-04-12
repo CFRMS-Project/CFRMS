@@ -1,5 +1,4 @@
 import { defineConfig } from "cypress";
-import { execSync } from "child_process";
 import http from "http";
 
 // URL của DB test
@@ -51,6 +50,9 @@ export default defineConfig({
     requestTimeout: 10000,
     responseTimeout: 30000,
 
+    // Cho db:reset task (prisma push + seed) đủ thời gian hoàn tất
+    taskTimeout: 90000,
+
     // Tắt video để test chạy nhanh hơn
     video: false,
 
@@ -65,35 +67,41 @@ export default defineConfig({
          * Sau khi seed xong, chờ server sẵn sàng (tránh ECONNREFUSED nếu nodemon restart).
          */
         "db:reset": async () => {
-          const envWithDb = {
-            ...process.env,
-            DATABASE_URL: TEST_DB_URL,
-          };
-
-          const opts = {
-            stdio: "inherit" as const,
-            env: envWithDb,
-          };
-
-          console.log("[db:reset] Đang reset DB test...");
-          console.log("[db:reset] DATABASE_URL =", TEST_DB_URL);
+          console.log(`[db:reset] Đang gửi yêu cầu reset DB tới ${BASE_URL}/api/test/reset...`);
 
           try {
-            // Bước 1: Reset schema (db push --force-reset xóa sạch DB và apply schema trực tiếp)
-            execSync(
-              "npx prisma db push --force-reset --accept-data-loss --schema=prisma/schema.prisma",
-              opts
-            );
+            await new Promise((resolve, reject) => {
+              const req = http.request(
+                `${BASE_URL}/api/test/reset`,
+                { method: "POST" },
+                (res) => {
+                  let data = "";
+                  res.on("data", (chunk) => { data += chunk; });
+                  res.on("end", () => {
+                    if (res.statusCode === 200) {
+                      console.log("[db:reset] Server đã reset và seed xong DB ✓");
+                      resolve(null);
+                    } else {
+                      reject(new Error(`[db:reset] Lỗi từ Server (status ${res.statusCode}): ${data}`));
+                    }
+                  });
+                }
+              );
+              // Timeout 60s để Prisma db push + seed có đủ thời gian chạy
+              req.setTimeout(60000, () => {
+                req.destroy();
+                reject(new Error("[db:reset] HTTP request tới /api/test/reset bị timeout sau 60s"));
+              });
+              req.on("error", (err) => {
+                reject(new Error(`[db:reset] Không thể kết nối tới server tại ${BASE_URL}: ${err.message}`));
+              });
+              req.end();
+            });
 
-            // Bước 2: Seed dữ liệu test
-            execSync("npx tsx prisma/seed.test.ts", opts);
-
-            console.log("[db:reset] Hoàn tất reset & seed. Đang chờ server...");
-
-            // Bước 3: Chờ server sẵn sàng (phòng trường hợp nodemon restart)
+            // Bước 3: Đợi một chút cho chắc chắn server đã sẵn sàng hoàn toàn
             await waitForServer(BASE_URL);
           } catch (error) {
-            console.error("[db:reset] Lỗi khi reset DB:", error);
+            console.error("[db:reset] Lỗi khi reset DB qua API:", error);
             throw error;
           }
 

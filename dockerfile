@@ -13,6 +13,9 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
+# Expose port cho test mode (PORT=3001 qua .env.test)
+EXPOSE 3001
+
 # ============================================================
 # Stage 2: Production — chạy app bằng tsx (tránh ESM import issues)
 # ============================================================

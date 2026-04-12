@@ -74,3 +74,23 @@ Chế độ Production (Biên dịch TS sang JS và chạy thật):
 npm run build
 npm start
 ```
+
+---
+
+## 5. Hướng dẫn Testing (Cypress E2E)
+
+Dự án sử dụng Cypress + Docker để mô phỏng môi trường tách biệt hoàn toàn với lúc code, không làm ảnh hưởng DB thật. Trước khi test, đảm bảo có Docker và tạo file `.env.test` (`PORT=3001`).
+
+- **Chạy có giao diện (Khi đang code/debug):**
+  ```bash
+  # 1. Bật server test ngầm
+  docker-compose -f docker-compose.test.yml up -d web-test
+  
+  # 2. Mở Cypress UI (DB sẽ tự động reset mỗi lần click chạy ứng dụng)
+  npm run cy:open
+  ```
+
+- **Chạy tự động hoàn toàn (Dành cho kiểm tra CI/CD):**
+  ```bash
+  docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+  ```

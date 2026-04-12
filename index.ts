@@ -44,6 +44,32 @@ app.get("/", (_req, res) => {
   res.redirect("/customer/home");
 });
 
+// --- API Hỗ trợ Test (Chỉ bật trong môi trường Test) ---
+console.log("[Test API] Kiểm tra bật API Reset. DATABASE_URL:", process.env.DATABASE_URL?.substring(0, 30) + "..., PORT:", process.env.PORT);
+
+if (process.env.PORT === "3001" || (process.env.DATABASE_URL && process.env.DATABASE_URL.includes("test"))) {
+  console.log("[Test API] API /api/test/reset ĐÃ ĐƯỢC BẬT!");
+  app.post("/api/test/reset", (_req, res) => {
+    import("child_process")
+      .then(({ execSync }) => {
+        try {
+          console.log("[Test API] Bắt đầu reset schema...");
+          execSync("npx prisma db push --force-reset --accept-data-loss --schema=prisma/schema.prisma", { stdio: "inherit" });
+          console.log("[Test API] Bắt đầu seed data...");
+          execSync("npx tsx prisma/seed.test.ts", { stdio: "inherit" });
+          res.status(200).send("OK");
+        } catch (error: any) {
+          console.error("[Test API] Lỗi:", error);
+          res.status(500).send(error.toString());
+        }
+      })
+      .catch((err) => {
+        res.status(500).send("Cannot load child_process: " + err);
+      });
+  });
+}
+
+
 // --- Routes Customer ---
 clientRoutes(app);
 adminRoutes(app)
