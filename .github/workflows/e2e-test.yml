@@ -75,6 +75,11 @@ jobs:
       CLOUDINARY_API_KEY: "000000000000000"
       CLOUDINARY_API_SECRET: "test-secret"
       CLOUDINARY_UPLOAD_PRESET: "test-preset"
+      # Bật Test Reset API (bảo mật: phải khai báo rõ ràng, không bao giờ có trong .env production)
+      NODE_ENV: "test"
+      ENABLE_TEST_RESET_API: "true"
+      # Token bí mật – đọc từ GitHub Repository Secret
+      TEST_RESET_TOKEN: ${{ secrets.TEST_RESET_TOKEN }}
       # Cypress
       CYPRESS_BASE_URL: "http://localhost:3001"
 
@@ -153,6 +158,8 @@ jobs:
         env:
           CYPRESS_BASE_URL: "http://localhost:3001"
           DATABASE_URL: ${{ env.DATABASE_URL }}
+          # Truyền token để Cypress gửi lên header x-test-reset-token khi gọi /api/test/reset
+          CYPRESS_TEST_RESET_TOKEN: ${{ secrets.TEST_RESET_TOKEN }}
 
       # ── Step 11: Upload Screenshots nếu test FAIL ────────────
       - name: 📸 Upload screenshots (khi test fail)
