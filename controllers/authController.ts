@@ -119,10 +119,18 @@ export const handleAdminLogin = async (req: Request, res: Response) => {
 
 // --- Xử lý đăng xuất ---
 export const handleLogout = (req: Request, res: Response) => {
+  const role = (req.session as any)?.user?.role;
+
   req.session.destroy((err) => {
     if (err) {
       console.error("Lỗi đăng xuất:", err);
     }
-    res.redirect("/login");
+
+    // Điều hướng dựa trên role trước khi đăng xuất
+    if (role === "ADMIN") {
+      res.redirect("/admin/login");
+    } else {
+      res.redirect("/login");
+    }
   });
 };

@@ -1,5 +1,5 @@
 services:
-  # ─── Database (PostgreSQL dành riêng cho môi trường Test) ───────────────────
+  # Database 
   db-test:
     image: postgres:16-alpine
     container_name: cfrms_db_test
@@ -10,12 +10,12 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # ─── Web App (dùng stage builder vì cần tsx/nodemon để chạy dev:test) ────────
+  # Web App 
   web-test:
     build:
       context: .
@@ -48,13 +48,13 @@ services:
     # Healthcheck: chờ HTTP server thực sự sẵn sàng trước khi Cypress bắt đầu
     # Dùng /login thay vì / vì root redirect về /customer/home (wget mặc định không follow redirect → exit 1)
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/login || exit 1"]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3001/login || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 15
       start_period: 30s
 
-  # ─── Cypress E2E Test Runner ─────────────────────────────────────────────────
+  # Cypress E2E Test Runner 
   cypress:
     image: "cypress/included:latest"
     container_name: cfrms_cypress
