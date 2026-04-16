@@ -12,13 +12,13 @@
 
 import type { Request, Response } from "express";
 import prisma from "../utils/db.js";
+import { validateLoginPayload } from "../utils/validation.js";
 
 // --- Hiển thị form đăng nhập chung (customer) ---
 export const showLogin = (req: Request, res: Response) => {
   res.render("partials/login", { errorMessage: null });
 };
 
-// --- Hiển thị form đăng nhập Admin ---
 export const showAdminLogin = (req: Request, res: Response) => {
   res.render("admin/pages/auth/login", { errorMessage: null });
 };
@@ -26,7 +26,18 @@ export const showAdminLogin = (req: Request, res: Response) => {
 // --- Xử lý đăng nhập chung ---
 export const handleLogin = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body as { username: string; password: string };
+    const validation = validateLoginPayload(req.body as {
+      username?: unknown;
+      password?: unknown;
+    });
+    if (!validation.ok) {
+      res.render("partials/login", {
+        errorMessage: validation.message,
+      });
+      return;
+    }
+
+    const { username, password } = validation.value;
 
     // 1. Tìm user theo username
     const user = await prisma.user.findUnique({
@@ -75,7 +86,18 @@ export const handleLogin = async (req: Request, res: Response) => {
 // --- Xử lý đăng nhập Admin (chỉ cho phép role ADMIN) ---
 export const handleAdminLogin = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body as { username: string; password: string };
+    const validation = validateLoginPayload(req.body as {
+      username?: unknown;
+      password?: unknown;
+    });
+    if (!validation.ok) {
+      res.render("admin/pages/auth/login", {
+        errorMessage: validation.message,
+      });
+      return;
+    }
+
+    const { username, password } = validation.value;
 
     const user = await prisma.user.findUnique({ where: { username } });
 

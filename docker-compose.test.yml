@@ -20,7 +20,6 @@ services:
     build:
       context: .
       dockerfile: dockerfile
-      # Dùng stage builder vì cần tsx/nodemon để chạy dev:test
       target: builder
     container_name: cfrms_web_test
     ports:
@@ -28,16 +27,12 @@ services:
     env_file:
       - .env.test
     environment:
-      # Override DATABASE_URL từ .env.test (localhost:5433 → db-test:5432 trong Docker network)
       - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
-      # Bắt buộc khai báo rõ ràng để bật API reset (bảo mật: không có trong .env sản phẩm)
       - NODE_ENV=test
       - ENABLE_TEST_RESET_API=true
-      # TEST_RESET_TOKEN được đọc tự động từ env_file (.env.test ở trên) – không hardcode
     depends_on:
       db-test:
         condition: service_healthy
-    # Override CMD: tạo thư mục cần thiết → migrate → seed → start server
     command: >
       sh -c "
         mkdir -p cypress/fixtures &&
@@ -45,8 +40,6 @@ services:
         npx tsx prisma/seed.test.ts &&
         npm run dev:test
       "
-    # Healthcheck: chờ HTTP server thực sự sẵn sàng trước khi Cypress bắt đầu
-    # Dùng /login thay vì / vì root redirect về /customer/home (wget mặc định không follow redirect → exit 1)
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:3001/login || exit 1" ]
       interval: 10s
@@ -60,18 +53,12 @@ services:
     container_name: cfrms_cypress
     depends_on:
       web-test:
-        # Chờ web-test HEALTHY (server đã thực sự nhận được request) mới bắt đầu test
         condition: service_healthy
-    # Đọc token từ .env.test (gitignored) để Cypress nhận được TEST_RESET_TOKEN
-    # mà không cần hardcode giá trị vào đây
     env_file:
       - .env.test
     environment:
       - CYPRESS_baseUrl=http://web-test:3001
-      # Để Cypress gọi Prisma kết nối được DB Test khi chạy ngầm bằng Docker
       - CYPRESS_DB_URL=postgresql://postgres:postgres@db-test:5432/cfrms_test
-      # TEST_RESET_TOKEN được đọc từ env_file (.env.test) ở trên
-      # cypress.config.ts sẽ dùng process.env.TEST_RESET_TOKEN để lấy token này
     working_dir: /e2e
     volumes:
       - ./:/e2e
