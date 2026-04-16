@@ -68,7 +68,10 @@ describe("FB-SUB: Gui danh gia", () => {
     cy.get('button[type="submit"]').click();
 
     cy.get("@contentInput").then(($textarea) => {
-      const textarea = $textarea[0] as {
+      const textareaElement = $textarea.get(0);
+      expect(textareaElement, "content textarea").to.exist;
+
+      const textarea = textareaElement as unknown as {
         validity: { valueMissing: boolean };
         checkValidity: () => boolean;
       };
