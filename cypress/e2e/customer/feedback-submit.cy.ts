@@ -31,8 +31,9 @@ describe("FB-SUB: Gui danh gia", () => {
     cy.url().should("not.include", "/login");
     cy.get('textarea[name="content"]')
       .should("be.visible")
-      .and("have.attr", "required")
-      .and("have.attr", "maxlength", "500");
+      .and("have.attr", "required");
+    cy.get('textarea[name="content"]')
+      .should("have.attr", "maxlength", "500");
     cy.get('input[name="tags"]').should("exist");
     cy.get('button[type="submit"]').should("be.visible");
     cy.get('input[type="file"]').should("exist");
