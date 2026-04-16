@@ -44,6 +44,38 @@ app.get("/", (_req, res) => {
   res.redirect("/customer/home");
 });
 
+// --- API Hỗ trợ Test (Chỉ bật khi NODE_ENV=test VÀ ENABLE_TEST_RESET_API=true) ---
+// Phải đặt cả 2 biến môi trường này một cách chủ động để tránh vô tình bật trong staging/production.
+const enableTestResetApi =
+  process.env.NODE_ENV === "test" &&
+  process.env.ENABLE_TEST_RESET_API === "true";
+
+if (enableTestResetApi) {
+  console.log("[Test API] API /api/test/reset đã được bật (NODE_ENV=test, ENABLE_TEST_RESET_API=true).");
+
+  app.post("/api/test/reset", (req, res) => {
+    // Đọc token từ env - không dùng hardcode để tránh bị AI/Scanner cảnh báo
+    const token = process.env.TEST_RESET_TOKEN;
+    if (!token || req.get("x-test-reset-token") !== token) {
+      return res.sendStatus(403);
+    }
+
+    import("child_process")
+      .then(({ execSync }) => {
+        try {
+          execSync("npx prisma db push --force-reset --accept-data-loss --schema=prisma/schema.prisma", { stdio: "inherit" });
+          execSync("npx tsx prisma/seed.test.ts", { stdio: "inherit" });
+          res.status(200).send("OK");
+        } catch {
+          // Không leak chi tiết lỗi nội bộ ra client
+          res.status(500).send("Reset failed. Check server logs.");
+        }
+      })
+      .catch(() => res.status(500).send("Internal error."));
+  });
+}
+
+
 // --- Routes Customer ---
 clientRoutes(app);
 adminRoutes(app)

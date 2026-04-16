@@ -283,6 +283,8 @@ html(lang="vi")
               name="username"
               placeholder="admin"
               autocomplete="username"
+              maxlength="100"
+              required
               autofocus
             )
 
@@ -298,6 +300,8 @@ html(lang="vi")
               name="password"
               placeholder="••••••••"
               autocomplete="current-password"
+              maxlength="255"
+              required
             )
             button.btn-toggle(type="button" id="togglePwd" aria-label="Hiện/ẩn mật khẩu")
               svg(id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")

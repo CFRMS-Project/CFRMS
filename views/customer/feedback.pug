@@ -135,7 +135,7 @@ block content
             div(class='flex items-center justify-between mb-2')
               p(class='text-xs font-bold text-slate-400 uppercase tracking-widest') Nội dung đánh giá
               span#charCount(class='text-xs text-slate-400 font-medium') #{initialContent.length}/500
-            textarea#contentInput(name='content' rows='4' maxlength='500' placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm...' class='w-full border-2 border-slate-200 rounded-2xl p-4 text-sm text-slate-700 focus:outline-none focus:border-blue-400 resize-none transition-colors') #{initialContent}
+            textarea#contentInput(name='content' rows='4' maxlength='500' required placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm...' class='w-full border-2 border-slate-200 rounded-2xl p-4 text-sm text-slate-700 focus:outline-none focus:border-blue-400 resize-none transition-colors') #{initialContent}
 
           //- Image Upload
           div
@@ -183,6 +183,9 @@ block scripts
       var tagsInput    = document.getElementById('tagsInput');
       var imageInput   = document.getElementById('imageInput');
       var imagePreview = document.getElementById('imagePreview');
+      var maxImageCount = 5;
+      var maxImageSize = 10 * 1024 * 1024;
+      var allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
       // Star rating
       var ratingLabels = ['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Tuyệt vời'];
@@ -260,8 +263,25 @@ block scripts
 
       imageInput.addEventListener('change', function(e) {
         var newFiles = Array.from(e.target.files || []);
+        var hasInvalidType = newFiles.some(function(file) {
+          return allowedImageTypes.indexOf(file.type) === -1;
+        });
+        if (hasInvalidType) {
+          alert('Chỉ được tải lên ảnh JPG, JPEG hoặc PNG.');
+          imageInput.value = '';
+          return;
+        }
+
+        var hasOversizedFile = newFiles.some(function(file) {
+          return file.size > maxImageSize;
+        });
+        if (hasOversizedFile) {
+          alert('Mỗi ảnh tải lên không được vượt quá 10MB.');
+          imageInput.value = '';
+          return;
+        }
         var currentCount = imagePreview.querySelectorAll('img').length;
-        if (currentCount + newFiles.length > 5) {
+        if (currentCount + newFiles.length > maxImageCount) {
           alert('Tối đa 5 ảnh (bao gồm ảnh cũ).');
           imageInput.value = '';
           return;
@@ -308,6 +328,11 @@ block scripts
         if (!contentInput.value.trim()) {
           e.preventDefault();
           alert('Vui lòng nhập nội dung đánh giá!');
+          return;
+        }
+        if (contentInput.value.trim().length > 500) {
+          e.preventDefault();
+          alert('Nội dung đánh giá không được quá 500 ký tự.');
           return;
         }
       });

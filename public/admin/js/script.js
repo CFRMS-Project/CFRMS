@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("feedback-detail-modal");
   if (!modal) return;
+  const MAX_REPLY_LENGTH = 1000;
 
   let currentFeedbackId = null;
 
@@ -138,6 +139,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnHideModal = document.getElementById("modal-btn-hide");
   const btnEditReplyModal = document.getElementById("modal-btn-edit-reply");
   const replyInput = document.getElementById("modal-reply-input");
+  const getReplyValidationMessage = ({ required = false } = {}) => {
+    const reply = replyInput.value.trim();
+    if (required && !reply) {
+      return "Vui lòng nhập nội dung phản hồi.";
+    }
+    if (reply.length > MAX_REPLY_LENGTH) {
+      return `Phản hồi không được quá ${MAX_REPLY_LENGTH} ký tự.`;
+    }
+    return null;
+  };
 
   // Trạng thái chế độ sửa
   let isEditMode = false;
@@ -145,6 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnApproveModal) {
     btnApproveModal.addEventListener("click", () => {
       if (!currentFeedbackId) return;
+      const validationMessage = getReplyValidationMessage();
+      if (validationMessage) {
+        alert(validationMessage);
+        return;
+      }
       const reply = replyInput.value.trim();
       updateStatus(currentFeedbackId, 'approved', reply).then(res => {
          if (res.code === 200) window.location.reload();
@@ -180,8 +196,12 @@ document.addEventListener("DOMContentLoaded", () => {
           </svg> Lưu phản hồi`;
       } else {
         // Lưu phản hồi mới
+        const validationMessage = getReplyValidationMessage({ required: true });
+        if (validationMessage) {
+          alert(validationMessage);
+          return;
+        }
         const reply = replyInput.value.trim();
-        if (!reply) { alert("Vui lòng nhập nội dung phản hồi."); return; }
         updateStatus(currentFeedbackId, 'approved', reply).then(res => {
           if (res.code === 200) window.location.reload();
           else alert(res.message || "Lỗi lưu phản hồi");
