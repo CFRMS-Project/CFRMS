@@ -68,7 +68,10 @@ describe("FB-SUB: Gui danh gia", () => {
     cy.get('button[type="submit"]').click();
 
     cy.get("@contentInput").then(($textarea) => {
-      const textarea = $textarea[0] as HTMLTextAreaElement;
+      const textarea = $textarea[0] as {
+        validity: { valueMissing: boolean };
+        checkValidity: () => boolean;
+      };
       expect(textarea.validity.valueMissing).to.eq(true);
       expect(textarea.checkValidity()).to.eq(false);
     });
@@ -79,9 +82,8 @@ describe("FB-SUB: Gui danh gia", () => {
     cy.loginAsCustomer();
     cy.visit("/feedback/new");
 
-    cy.window().then((win) => {
-      cy.stub(win, "alert").as("alert");
-    });
+    const alertStub = cy.stub().as("alert");
+    cy.on("window:alert", alertStub);
 
     setRating(3);
     const longContent = "A".repeat(501);

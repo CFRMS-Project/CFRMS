@@ -67,6 +67,9 @@ jobs:
           # Seed dữ liệu mẫu (tuỳ chọn vì Cypress db:reset cũng sẽ gọi ở mỗi file spec)
           npx dotenv -e .env.test -- npx tsx prisma/seed.test.ts
 
+      - name: Type Check Cypress
+        run: npm run lint:cypress
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
