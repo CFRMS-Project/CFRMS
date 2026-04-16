@@ -61,7 +61,7 @@ Cypress.Commands.add("loginAsCustomer", () => {
     {
       // Validate session vẫn còn hiệu lực bằng cách kiểm tra cookie
       validate: () => {
-        cy.request({ url: "/customer/home", failOnStatusCode: false }).its(
+        cy.request({ url: "/customer/history", failOnStatusCode: false }).its(
           "status"
         ).should("eq", 200);
       },
